@@ -4,8 +4,6 @@ import Layout from "@/components/layout";
 import AddViewModal from "./components/add-view-modal";
 import { isDarkMode } from "./utils";
 
-console.log("[app.tsx]", `Hello world from Electron ${process.versions.electron}!`);
-
 // dark mode
 if (isDarkMode()) {
   document.documentElement.classList.add("dark");

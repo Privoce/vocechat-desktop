@@ -38,8 +38,35 @@ listenerMiddleware.startListening({
         break;
       case "data":
         {
-          ipcRenderer.send("add-view", { data: payload });
-          console.log("data updated");
+          switch (operation) {
+            case "updateAddModalVisible":
+              {
+                ipcRenderer.send("add-view-modal", { visible: payload });
+                console.log("effect updateAddModalVisible");
+              }
+              break;
+            case "addServer":
+              {
+                ipcRenderer.send("add-view", { data: payload });
+                console.log("effect add server");
+              }
+              break;
+            case "removeServer":
+              {
+                ipcRenderer.send("remove-view", { url: payload });
+                console.log("effect remove server");
+              }
+              break;
+            case "switchServer":
+              {
+                ipcRenderer.send("switch-view", { url: payload });
+                console.log("effect switch server");
+              }
+              break;
+
+            default:
+              break;
+          }
         }
         break;
 

@@ -1,56 +1,70 @@
 import { MouseEvent } from "react";
-// import { useDispatch } from "react-redux";
-import { ipcRenderer } from "electron";
-// import { Servers } from "@/app/config";
+import { useDispatch } from "react-redux";
+import clsx from "clsx";
+import { removeServer, switchServer, updateAddModalVisible } from "@/app/slices/data";
 import { useAppSelector } from "@/app/store";
+import { ReactComponent as IconDelete } from "@/assets/icons/delete.svg";
+import Button from "./base/button";
 
 // type Props = {};
 
 const Layout = () => {
-  const { servers } = useAppSelector((store) => store.data);
-  // const dispatch = useDispatch();
-  const handleSwitch = (evt: MouseEvent<HTMLButtonElement>) => {
+  const { servers, active } = useAppSelector((store) => store.data);
+  const dispatch = useDispatch();
+  const handleSwitch = (evt: MouseEvent<HTMLLIElement>) => {
     console.log("switch");
     const { url } = evt.currentTarget.dataset;
-    ipcRenderer.send("switch-view", { url });
+    if (url == active) return;
+    if (url) {
+      dispatch(switchServer(url));
+    }
   };
   const handleAddServer = () => {
-    ipcRenderer.send("add-view-modal", { visible: true });
+    dispatch(updateAddModalVisible(true));
   };
-  console.log("ssss", servers);
-
+  const handleRemove = (url: string) => {
+    dispatch(removeServer(url));
+  };
   return (
     <section className="flex h-screen bg-gray-200 dark:bg-gray-900 select-none">
-      <aside className="w-1/6 pt-8  border-r border-gray-50 dark:border-gray-950 h-full">
-        <div className="px-3">
-          <ul className="flex flex-col gap-2 py-1 text-gray-900 dark:text-gray-100 text-lg">
-            {servers.map((server) => {
-              const { web_url, api_url, name } = server;
-              return (
-                <li
-                  key={web_url}
-                  className="no-drag flex items-center gap-2 cursor-pointer px-2 py-1 rounded hover:bg-gray-500/50"
-                >
-                  <img
-                    className="w-6 h-6 rounded-full border border-gray-500/20"
-                    src={`${
-                      api_url || web_url
-                    }/api/resource/organization/logo?t=${new Date().getTime()}`}
-                    alt="logo"
+      <aside className="flex flex-col justify-between w-1/6 pt-8  border-r border-gray-50 dark:border-gray-950 h-full ">
+        <ul className="px-3 flex flex-col gap-2 py-1 text-gray-900 dark:text-gray-100 text-lg">
+          {servers.map((server) => {
+            const { web_url, api_url, name } = server;
+            return (
+              <li
+                role="button"
+                key={web_url}
+                className={clsx(
+                  "group relative no-drag flex items-center gap-2 cursor-pointer px-2 py-1 rounded hover:bg-gray-500/50",
+                  web_url === active && "bg-gray-500/50"
+                )}
+                data-url={web_url}
+                onClick={handleSwitch}
+              >
+                <img
+                  className="w-6 h-6 rounded-full border border-gray-500/20"
+                  src={`${
+                    api_url || web_url
+                  }/api/resource/organization/logo?t=${new Date().getTime()}`}
+                  alt="logo"
+                />
+                <span>{name}</span>
+                {active !== web_url && (
+                  <IconDelete
+                    onClick={handleRemove.bind(null, web_url)}
+                    role="button"
+                    className="invisible group-hover:visible absolute right-1"
                   />
-                  <button className="" data-url={web_url} onClick={handleSwitch}>
-                    {name}
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-          <button
-            className="no-drag dark:text-white text-left w-full px-3 py-1"
-            onClick={handleAddServer}
-          >
+                )}
+              </li>
+            );
+          })}
+        </ul>
+        <div className="px-3 mb-6">
+          <Button className="no-drag" widthFull onClick={handleAddServer}>
             Add Server
-          </button>
+          </Button>
         </div>
       </aside>
       <main className="no-drag w-5/6 h-full">

@@ -1,6 +1,6 @@
 import { release } from "node:os";
 import { join } from "node:path";
-import { app, BrowserView, BrowserWindow, ipcMain, shell } from "electron";
+import { app, BrowserView, BrowserWindow, desktopCapturer, ipcMain, shell } from "electron";
 import { VocechatServer } from "@/types/common";
 import { update } from "./update";
 
@@ -45,6 +45,7 @@ const indexHtml = join(process.env.DIST, "index.html");
 const ViewMap: Record<string, BrowserView> = {};
 const addView = (item: VocechatServer) => {
   const { web_url } = item;
+  if (ViewMap[web_url]) return;
   const view = new BrowserView({
     webPreferences: {
       nodeIntegration: true,
@@ -53,6 +54,11 @@ const addView = (item: VocechatServer) => {
     }
   });
   win?.addBrowserView(view);
+  if (process.env.NODE_ENV === "development") {
+    view.webContents.openDevTools({
+      mode: "bottom"
+    });
+  }
   view.setBackgroundColor("#fff");
   view.setAutoResize({ width: true, height: true, horizontal: true, vertical: true });
   view.setBounds({ x: 200, y: 0, width: 1000, height: 800 });
@@ -173,8 +179,6 @@ ipcMain.on("switch-view", (event, arg) => {
     const view = ViewMap[url];
     console.log("switch view", ViewMap, view);
     if (view) {
-      // view.webContents.loadURL(url);
-      // win?.setBrowserView(view);
       win?.setTopBrowserView(view);
     }
   }
@@ -185,6 +189,14 @@ ipcMain.on("add-view", (event, arg) => {
   console.log("add-view", arg);
   const { data } = arg;
   addView(data as VocechatServer);
+});
+ipcMain.on("remove-view", (event, arg) => {
+  console.log("remove-view", arg);
+  const { url } = arg;
+  if (ViewMap[url]) {
+    ViewMap[url].webContents.close();
+    delete ViewMap[url];
+  }
 });
 // add view modal visible
 ipcMain.on("add-view-modal", (event, arg) => {
@@ -212,4 +224,11 @@ app.on("certificate-error", (event, webContents, url, error, certificate, callba
   // and we then say "it is all fine - true" to the callback
   event.preventDefault();
   callback(true);
+});
+
+// share screen
+ipcMain.handle("DESKTOP_CAPTURER_GET_SOURCES", (event, opts) => {
+  console.log("DESKTOP_CAPTURER_GET_SOURCES", opts);
+
+  return desktopCapturer.getSources(opts);
 });

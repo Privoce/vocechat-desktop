@@ -7,7 +7,7 @@ type Server = {
 };
 export const dataApi = createApi({
   reducerPath: "dataApi",
-  baseQuery: baseQuery("https://dev.voce.chat"),
+  baseQuery: baseQuery(""),
   endpoints: (builder) => ({
     getServerInfo: builder.query<Server, string>({
       query: (server) => ({ url: `${server}/api/admin/system/organization` })

@@ -10,10 +10,17 @@ import { dataApi } from "./services/data";
 import dataReducer from "./slices/data";
 
 const config = {
-  // TOGGLE_TODO will not be triggered in other tabs
-  blacklist: ["getServerInfo"]
+  // filter out
+  // predicate: (action: any) => {
+  //   const { type } = action;
+  //   const synced = !type.starsWith("dataApi");
+  //   console.log("predicate sync", action.type, synced);
+  //   return synced;
+  // },
+  // blacklist: ["dataApi/subscriptions/unsubscribeQueryResult"],
+  whitelist: ["data/addServer"]
 };
-const middlewares = createStateSyncMiddleware(config);
+const middlewareList = createStateSyncMiddleware(config);
 const reducer = combineReducers({
   data: dataReducer,
   [dataApi.reducerPath]: dataApi.reducer
@@ -23,7 +30,7 @@ const store = configureStore({
   reducer: withReduxStateSync(reducer),
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
-      .concat(middlewares, dataApi.middleware)
+      .concat(middlewareList, dataApi.middleware)
       .prepend(listenerMiddleware.middleware)
 });
 
