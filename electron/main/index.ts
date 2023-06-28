@@ -128,7 +128,12 @@ async function createWindow() {
     show: false,
     closable: true
   });
-  winModal.loadURL("http://localhost:5173/#/add-view-modal");
+  if (url) {
+    // electron-vite-vue#298
+    winModal.loadURL(`${url}#/add-view-modal}`);
+  } else {
+    winModal.loadFile(`${indexHtml}#/add-view-modal`);
+  }
 }
 
 app.whenReady().then(createWindow);
