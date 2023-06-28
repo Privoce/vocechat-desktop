@@ -1,6 +1,6 @@
 {
   "name": "vocechat-desktop",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "main": "dist-electron/main/index.js",
   "description": "Vocechat desktop version",
   "author": "Tristan <yanggc888@163.com>",
@@ -54,6 +54,6 @@
     "vite-svg-loader": "^4.0.0"
   },
   "engines": {
-    "node": "^14.18.0 || >=16.0.0"
+    "node": ">=16.0.0"
   }
 }
