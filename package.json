@@ -1,8 +1,8 @@
 {
-  "name": "vocechat-desktop",
+  "name": "VoceChat",
   "version": "0.2.1",
   "main": "dist-electron/main/index.js",
-  "description": "Vocechat desktop version",
+  "description": "vocechat desktop version",
   "author": "Tristan <yanggc888@163.com>",
   "license": "MIT",
   "private": true,
