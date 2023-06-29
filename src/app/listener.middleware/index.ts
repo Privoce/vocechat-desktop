@@ -19,12 +19,12 @@ listenerMiddleware.startListening({
     // console.log("listener predicate", action, currentState, previousState);
     // return true;
   },
-  effect: async (action, listenerApi) => {
+  effect: async (action) => {
     const { type = "", payload } = action;
     const [prefix, operation]: [keyof RootState | "__rtkq", string] = type.split("/");
     // console.log("effect opt", action);
-    const currentState = listenerApi.getState() as RootState;
-    const state = prefix == "__rtkq" ? null : currentState[prefix];
+    // const currentState = listenerApi.getState() as RootState;
+    // const state = prefix == "__rtkq" ? null : currentState[prefix];
     console.log("effect", prefix, payload);
     switch (prefix) {
       case "__rtkq":
