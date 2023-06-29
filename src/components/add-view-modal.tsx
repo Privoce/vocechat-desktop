@@ -6,15 +6,15 @@ import Button from "./base/button";
 import Input from "./base/input";
 
 // type Props = {};
-
+const initialInputs = {
+  name: "",
+  web_url: "",
+  api_url: ""
+};
 const AddViewModal = () => {
   const dispatch = useDispatch();
   const [getServerInfo, { data, isSuccess, isLoading }] = useLazyGetServerInfoQuery();
-  const [inputs, setInputs] = useState({
-    name: "",
-    web_url: "",
-    api_url: ""
-  });
+  const [inputs, setInputs] = useState(initialInputs);
   const handleChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
     const {
       dataset: { type },
@@ -45,12 +45,14 @@ const AddViewModal = () => {
     // dispatch(addServer(inputs));
   };
   const handleCancel = () => {
+    setInputs(initialInputs);
     dispatch(updateAddModalVisible(false));
   };
   return (
     <div className="bg-white dark:bg-gray-900 w-screen h-screen text-lg flex items-center justify-center">
       <form action="" className="w-56 flex flex-col gap-4">
         <Input
+          value={inputs.api_url}
           type="text"
           className="w-56"
           data-type="api_url"

@@ -64,7 +64,7 @@ const addView = (item: VocechatServer) => {
   }
   view.setBackgroundColor("#fff");
   view.setAutoResize({ width: true, height: true, horizontal: true, vertical: true });
-  view.setBounds({ x: 200, y: 0, width: 1000, height: 800 });
+  view.setBounds({ x: 60, y: 0, width: 1140, height: 800 });
   view.webContents.loadURL(web_url);
   // win?.addBrowserView(view);
   ViewMap[web_url] = view;
