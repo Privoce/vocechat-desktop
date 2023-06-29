@@ -1,5 +1,6 @@
 import { release } from "node:os";
 import { join } from "node:path";
+// import NodeURL from "node:url";
 import { app, BrowserView, BrowserWindow, desktopCapturer, ipcMain, shell } from "electron";
 import { VocechatServer } from "@/types/common";
 import { update } from "./update";
@@ -49,7 +50,9 @@ const addView = (item: VocechatServer) => {
   const view = new BrowserView({
     webPreferences: {
       nodeIntegration: true,
-      devTools: process.env.NODE_ENV === "development"
+      devTools: process.env.NODE_ENV === "development",
+      webSecurity: false
+
       // preload
     }
   });
@@ -123,16 +126,25 @@ async function createWindow() {
     webPreferences: {
       preload,
       nodeIntegration: true,
-      contextIsolation: false
+      contextIsolation: false,
+      webSecurity: false
     },
     show: false,
     closable: true
   });
   if (url) {
     // electron-vite-vue#298
-    winModal.loadURL(`${url}#/add-view-modal}`);
+    winModal.loadURL(`${url}#/add-view-modal`);
   } else {
-    winModal.loadFile(`${indexHtml}#/add-view-modal`);
+    // winModal.loadURL(
+    //   NodeURL.format({
+    //     pathname: indexHtml,
+    //     protocol: "file:",
+    //     slashes: true,
+    //     hash: "add-view-modal"
+    //   })
+    // );
+    winModal.loadFile(indexHtml, { hash: "/add-view-modal" });
   }
 }
 
@@ -198,8 +210,11 @@ ipcMain.on("add-view", (event, arg) => {
 ipcMain.on("remove-view", (event, arg) => {
   console.log("remove-view", arg);
   const { url } = arg;
-  if (ViewMap[url]) {
-    ViewMap[url].webContents.close();
+  const currView = ViewMap[url];
+  if (currView) {
+    // win.setBrowserView
+    // undocumented API
+    (currView.webContents as any).destroy();
     delete ViewMap[url];
   }
 });

@@ -88,6 +88,9 @@ export default defineConfig(({ command }) => {
       // Use Node.js API in the Renderer-process
       renderer()
     ],
+    build: {
+      sourcemap: false
+    },
     server:
       process.env.VSCODE_DEBUG &&
       (() => {

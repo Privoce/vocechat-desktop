@@ -1,6 +1,7 @@
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import {
+  Config,
   createStateSyncMiddleware,
   initStateWithPrevTab,
   withReduxStateSync
@@ -18,8 +19,11 @@ const config = {
   //   return synced;
   // },
   // blacklist: ["dataApi/subscriptions/unsubscribeQueryResult"],
+  broadcastChannelOption: {
+    type: "native"
+  },
   whitelist: ["data/addServer"]
-};
+} as Config;
 const middlewareList = createStateSyncMiddleware(config);
 const reducer = combineReducers({
   data: dataReducer,
@@ -30,7 +34,7 @@ const store = configureStore({
   reducer: withReduxStateSync(reducer),
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
-      .concat(middlewareList, dataApi.middleware)
+      .concat(dataApi.middleware, middlewareList)
       .prepend(listenerMiddleware.middleware)
 });
 

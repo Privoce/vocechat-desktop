@@ -1,6 +1,6 @@
 {
   "name": "VoceChat",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "main": "dist-electron/main/index.js",
   "description": "vocechat desktop version",
   "author": "Tristan <yanggc888@163.com>",
@@ -13,9 +13,10 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "tsc && vite build && electron-builder",
     "release": "electron-builder",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "postinstall": "patch-package"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^1.9.5",
@@ -41,6 +42,7 @@
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-react": "^7.32.2",
     "eslint-plugin-react-hooks": "^4.6.0",
+    "patch-package": "^7.0.0",
     "postcss": "^8.4.24",
     "prettier": "^2.8.8",
     "react": "^18.2.0",
