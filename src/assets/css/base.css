@@ -1,15 +1,17 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-body{
+@layer utilities {
+  .app-drag {
     -webkit-app-region: drag;
-}
-body .no-drag{
+  }
+  .app-no-drag {
     -webkit-app-region: no-drag;
+  }
 }
 html.dark #root {
-    background: rgb(64 67 71);
-  }
-.nav.visible{
-    display: none !important;
+  background: rgb(64 67 71);
+}
+.nav.visible {
+  display: none !important;
 }

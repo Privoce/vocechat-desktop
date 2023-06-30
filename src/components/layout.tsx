@@ -1,6 +1,7 @@
 import { MouseEvent } from "react";
 import { useDispatch } from "react-redux";
 import clsx from "clsx";
+// import { ipcRenderer } from "electron";
 import { switchServer, updateAddModalVisible } from "@/app/slices/data";
 import { useAppSelector } from "@/app/store";
 import { ReactComponent as IconAdd } from "@/assets/icons/add.svg";
@@ -30,7 +31,7 @@ const Layout = () => {
   // };
   return (
     <section className="flex h-screen bg-gray-200 dark:bg-gray-900 select-none">
-      <aside className="flex flex-col items-center gap-3 w-[60px] pt-8  border-r border-gray-50 dark:border-gray-950 h-full ">
+      <aside className="app-drag flex flex-col items-center gap-3 w-[60px] h-full ">
         <ul className="flex flex-col gap-2 py-1 text-gray-900 dark:text-gray-100 text-lg">
           {servers.map((server) => {
             const { web_url, api_url, name } = server;
@@ -38,13 +39,14 @@ const Layout = () => {
               <li
                 role="button"
                 key={web_url}
-                className={clsx("relative no-drag px-3 w-full")}
+                className={clsx("relative group px-3 w-full")}
                 data-url={web_url}
                 onClick={handleSwitch}
                 title={name}
               >
                 <div
                   className={clsx(
+                    "app-no-drag",
                     "w-9 h-9 flex items-center justify-center cursor-pointer rounded hover:bg-gray-500/50",
                     web_url === active && "bg-gray-500/50"
                   )}
@@ -71,11 +73,11 @@ const Layout = () => {
             );
           })}
         </ul>
-        <div className="w-9 h-9 flex items-center justify-center cursor-pointer rounded hover:bg-gray-500/50">
-          <IconAdd role="button" className="no-drag cursor-pointer" onClick={handleAddServer} />
+        <div className="app-no-drag w-9 h-9 flex items-center justify-center cursor-pointer rounded hover:bg-gray-500/50">
+          <IconAdd role="button" className=" cursor-pointer" onClick={handleAddServer} />
         </div>
       </aside>
-      <main className="no-drag w-[calc(100%_-_60px)] h-full">
+      <main className="w-[calc(100%_-_60px)] h-full">
         <div className="">{/* <Tabs /> */}</div>
       </main>
     </section>

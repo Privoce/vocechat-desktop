@@ -43,20 +43,20 @@ let winModal: BrowserWindow;
 const preload = join(__dirname, "../preload/index.js");
 const url = process.env.VITE_DEV_SERVER_URL;
 const indexHtml = join(process.env.DIST, "index.html");
-const ViewMap: Record<string, BrowserView> = {};
+const ViewMap: Record<string, BrowserView | null> = {};
 const addView = (item: VocechatServer) => {
+  if (!win) return;
   const { web_url } = item;
   if (ViewMap[web_url]) return;
   const view = new BrowserView({
     webPreferences: {
+      preload,
       nodeIntegration: true,
       devTools: process.env.NODE_ENV === "development",
       webSecurity: false
-
-      // preload
     }
   });
-  win?.addBrowserView(view);
+  win.addBrowserView(view);
   if (process.env.NODE_ENV === "development") {
     view.webContents.openDevTools({
       mode: "bottom"
@@ -64,15 +64,22 @@ const addView = (item: VocechatServer) => {
   }
   view.setBackgroundColor("#fff");
   view.setAutoResize({ width: true, height: true, horizontal: true, vertical: true });
-  view.setBounds({ x: 60, y: 0, width: 1140, height: 800 });
+  const titleBarHeight = win.getSize()[1] - win.getContentSize()[1];
+  view.setBounds({
+    x: 60,
+    y: titleBarHeight,
+    width: 1140,
+    height: 800 - titleBarHeight
+  });
   view.webContents.loadURL(web_url);
-  // win?.addBrowserView(view);
+  // win.addBrowserView(view);
   ViewMap[web_url] = view;
 };
 async function createWindow() {
   win = new BrowserWindow({
-    titleBarStyle: "hidden",
-    useContentSize: true,
+    // titleBarStyle: "hidden",
+    // titleBarOverlay: true,
+    // useContentSize: true,
     minWidth: 800,
     minHeight: 600,
     width: 1200,
@@ -118,8 +125,8 @@ async function createWindow() {
   update(win);
   // 初始化modal
   winModal = new BrowserWindow({
-    width: 500,
-    height: 600,
+    width: 440,
+    height: 322,
     resizable: false,
     parent: win,
     modal: true,
@@ -190,13 +197,13 @@ ipcMain.handle("open-win", (_, arg) => {
 });
 // Event handler for asynchronous incoming messages
 ipcMain.on("switch-view", (event, arg) => {
-  console.log(arg);
+  if (!win) return;
   const { url } = arg as { url: string };
   if (url) {
     const view = ViewMap[url];
     console.log("switch view", ViewMap, view);
     if (view) {
-      win?.setTopBrowserView(view);
+      win.setTopBrowserView(view);
     }
   }
   // // Event emitter for sending asynchronous messages
@@ -212,10 +219,11 @@ ipcMain.on("remove-view", (event, arg) => {
   const { url } = arg;
   const currView = ViewMap[url];
   if (currView) {
+    win.removeBrowserView(currView);
     // win.setBrowserView
     // undocumented API
-    (currView.webContents as any).destroy();
-    delete ViewMap[url];
+    // (currView.webContents as any).destroy();
+    ViewMap[url] = null;
   }
 });
 // add view modal visible
@@ -223,9 +231,25 @@ ipcMain.on("add-view-modal", (event, arg) => {
   console.log(arg);
   const { visible } = arg as { visible: boolean };
   if (visible) {
+    winModal.reload();
     winModal.show();
   } else {
     winModal.hide();
+  }
+});
+// toggle popover
+ipcMain.on("toggle-popover-window", (event, arg) => {
+  console.log(arg);
+  const {
+    visible,
+    web_url,
+    name = ""
+  } = arg as { visible: boolean; web_url: string; name?: string };
+  const currView = ViewMap[web_url];
+  if (currView) {
+    console.log("post msg", visible, name);
+
+    currView.webContents.send("server-name-popover", { visible, name });
   }
 });
 ipcMain.on("init-views", (event, arg: { list: VocechatServer[] }) => {

@@ -240,6 +240,11 @@
     ajv "^6.12.0"
     ajv-keywords "^3.4.1"
 
+"@electron-toolkit/preload@^2.0.0":
+  version "2.0.0"
+  resolved "https://mirrors.cloud.tencent.com/npm/@electron-toolkit/preload/-/preload-2.0.0.tgz#1b704c4c4643ae1d960835db196625e17c9dcf4e"
+  integrity sha512-zpZDzbqJTZQC5d4LRs2EKruKWnqah+T75s+niBYFemYLtiW5TTZcWi3Q8UxHqnwTudDMuWJb233aaS2yjx3Xiw==
+
 "@electron/asar@^3.2.1":
   version "3.2.4"
   resolved "https://mirrors.cloud.tencent.com/npm/@electron/asar/-/asar-3.2.4.tgz#7e8635a3c4f6d8b3f8ae6efaf5ecb9fbf3bd9864"

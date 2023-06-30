@@ -1,6 +1,6 @@
 {
   "name": "VoceChat",
-  "version": "0.2.11",
+  "version": "0.3.0",
   "main": "dist-electron/main/index.js",
   "description": "vocechat desktop version",
   "author": "Tristan <yanggc888@163.com>",
@@ -13,12 +13,14 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build && electron-builder",
+    "build": "tsc && vite build",
+    "build:local": "tsc && vite build && electron-builder",
     "release": "electron-builder",
     "preview": "vite preview",
     "postinstall": "patch-package"
   },
   "dependencies": {
+    "@electron-toolkit/preload": "^2.0.0",
     "@reduxjs/toolkit": "^1.9.5",
     "clsx": "^1.2.1",
     "electron-updater": "^6.1.1",

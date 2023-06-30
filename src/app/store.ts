@@ -22,7 +22,7 @@ const config = {
   broadcastChannelOption: {
     type: "native"
   },
-  whitelist: ["data/addServer"]
+  whitelist: ["data/addServer", "data/switchServer"]
 } as Config;
 const middlewareList = createStateSyncMiddleware(config);
 const reducer = combineReducers({
