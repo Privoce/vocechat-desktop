@@ -231,7 +231,7 @@ ipcMain.on("add-view-modal", (event, arg) => {
   console.log(arg);
   const { visible } = arg as { visible: boolean };
   if (visible) {
-    winModal.reload();
+    // winModal.reload();
     winModal.show();
   } else {
     winModal.hide();

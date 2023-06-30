@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import clsx from "clsx";
-import { useLazyGetServerInfoQuery } from "@/app/services/data";
+import { dataApi, useLazyGetServerInfoQuery } from "@/app/services/data";
 import { addServer, switchServer, updateAddModalVisible } from "@/app/slices/data";
 import { useAppSelector } from "@/app/store";
 import { ReactComponent as IconClose } from "@/assets/icons/close.svg";
@@ -72,6 +72,7 @@ const AddViewModal = () => {
   const handleCancel = () => {
     setInputs(initialInputs);
     setErr(false);
+    dispatch(dataApi.util.resetApiState());
     dispatch(updateAddModalVisible(false));
   };
   const handleResetError = () => {
