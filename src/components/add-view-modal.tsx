@@ -5,6 +5,7 @@ import { dataApi, useLazyGetServerInfoQuery } from "@/app/services/data";
 import { addServer, switchServer, updateAddModalVisible } from "@/app/slices/data";
 import { useAppSelector } from "@/app/store";
 import { ReactComponent as IconClose } from "@/assets/icons/close.svg";
+import { ReactComponent as InfoIcon } from "@/assets/icons/info.svg";
 import { getServerUrl } from "@/utils";
 import Button from "./base/button";
 import Input from "./base/input";
@@ -81,7 +82,7 @@ const AddViewModal = () => {
   return (
     <div className="relative bg-white dark:bg-gray-900 w-screen h-screen p-10 pt-16 flex flex-col items-center justify-center">
       <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Add a Server</h2>
-      <div className="w-full flex flex-col gap-1 mt-8 mb-3">
+      <div className="relative w-full flex flex-col gap-1 mt-8 mb-3">
         <label className="text-gray-900 dark:text-gray-100 text-sm" htmlFor="api_url">
           Server URL
         </label>
@@ -91,7 +92,7 @@ const AddViewModal = () => {
           name="api_url"
           value={inputs.api_url}
           type="text"
-          className={clsx("w-full", err && "error")}
+          className={clsx("w-full", err && "error shadow-sm shadow-red-100 dark:shadow-red-900")}
           data-type="api_url"
           placeholder="Enter server URL"
           onChange={handleChange}
@@ -99,6 +100,7 @@ const AddViewModal = () => {
         <span className={clsx("text-sm text-red-500", err ? "visible" : "invisible")}>
           No valid server found at this URL.
         </span>
+        <InfoIcon className={clsx("absolute right-3 top-9", err ? "visible" : "invisible")} />
       </div>
       <Button onClick={handleAdd} disabled={isLoading}>
         {isLoading ? "Connecting" : `Connect`}
