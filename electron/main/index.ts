@@ -3,7 +3,8 @@ import { join } from "node:path";
 // import NodeURL from "node:url";
 import { app, BrowserView, BrowserWindow, desktopCapturer, ipcMain, shell } from "electron";
 import { VocechatServer } from "@/types/common";
-import { update } from "./update";
+
+// import { update } from "./update";
 
 // The built directory structure
 //
@@ -38,6 +39,7 @@ if (!app.requestSingleInstanceLock()) {
 // process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true'
 
 let win: BrowserWindow;
+let navView: BrowserView;
 let winModal: BrowserWindow;
 // Here, you can also use other preload
 const preload = join(__dirname, "../preload/index.js");
@@ -88,7 +90,7 @@ async function createWindow() {
     icon: join(process.env.PUBLIC, "favicon.ico"),
     webPreferences: {
       allowRunningInsecureContent: true,
-      webviewTag: true,
+      // webviewTag: true,
       preload,
       // Warning: Enable nodeIntegration and disable contextIsolation is not secure in production
       // Consider using contextBridge.exposeInMainWorld
@@ -97,32 +99,56 @@ async function createWindow() {
       contextIsolation: false
     }
   });
-
+  // win.webContents.loadURL("https://baidu.com");
+  navView = new BrowserView({
+    webPreferences: {
+      allowRunningInsecureContent: true,
+      // webviewTag: true,
+      preload,
+      // Warning: Enable nodeIntegration and disable contextIsolation is not secure in production
+      // Consider using contextBridge.exposeInMainWorld
+      // Read more on https://www.electronjs.org/docs/latest/tutorial/context-isolation
+      nodeIntegration: true,
+      contextIsolation: false
+    }
+  });
+  win.addBrowserView(navView);
+  win.setTopBrowserView(navView);
   if (url) {
     // electron-vite-vue#298
-    win.loadURL(url);
+    navView.webContents.loadURL(url);
     if (process.env.NODE_ENV === "development") {
       // Open devTool if the app is not packaged
-      win.webContents.openDevTools({
+      navView.webContents.openDevTools({
         mode: "detach"
       });
     }
   } else {
-    win.loadFile(indexHtml);
+    navView.webContents.loadFile(indexHtml);
   }
 
   // Test actively push message to the Electron-Renderer
-  win.webContents.on("did-finish-load", () => {
-    win?.webContents.send("main-process-message", new Date().toLocaleString());
+  navView.webContents.on("did-finish-load", () => {
+    navView?.webContents.send("main-process-message", new Date().toLocaleString());
   });
 
   // Make all links open with the browser, not with the application
-  win.webContents.setWindowOpenHandler(({ url }) => {
+  navView.webContents.setWindowOpenHandler(({ url }) => {
     if (url.startsWith("https:")) shell.openExternal(url);
     return { action: "deny" };
   });
+  navView.setBackgroundColor("rgba(1,1,1,0)");
+  navView.setAutoResize({ width: true, height: true, horizontal: true, vertical: true });
+  const titleBarHeight = win.getSize()[1] - win.getContentSize()[1];
+  navView.setBounds({
+    x: 0,
+    y: titleBarHeight,
+    width: 1200,
+    height: 800 - titleBarHeight
+  });
+
   // Apply electron-updater
-  update(win);
+  // update(win);
   // 初始化modal
   winModal = new BrowserWindow({
     width: 440,
@@ -199,6 +225,11 @@ ipcMain.handle("open-win", (_, arg) => {
 ipcMain.on("switch-view", (event, arg) => {
   if (!win) return;
   const { url } = arg as { url: string };
+  if (url == "NAV_VIEW_TOP_ENABLE") {
+    // tricky
+    win.setTopBrowserView(navView);
+    return;
+  }
   if (url) {
     const view = ViewMap[url];
     console.log("switch view", ViewMap, view);

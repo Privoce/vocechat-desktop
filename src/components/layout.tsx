@@ -1,8 +1,9 @@
 import { MouseEvent } from "react";
 import { useDispatch } from "react-redux";
+import { Tooltip } from "react-tooltip";
 import clsx from "clsx";
 // import { ipcRenderer } from "electron";
-import { switchServer, updateAddModalVisible } from "@/app/slices/data";
+import { switchServer, updateAddModalVisible, updateNavTopmost } from "@/app/slices/data";
 import { useAppSelector } from "@/app/store";
 import { ReactComponent as IconAdd } from "@/assets/icons/add.svg";
 
@@ -26,28 +27,43 @@ const Layout = () => {
   const handleAddServer = () => {
     dispatch(updateAddModalVisible(true));
   };
+  const handleMouseEnter = (evt: MouseEvent<HTMLLIElement>) => {
+    const { url } = evt.currentTarget.dataset;
+    if (url == active) return;
+    dispatch(updateNavTopmost({ top: true }));
+  };
+  const handleMouseLeave = (evt: MouseEvent<HTMLLIElement>) => {
+    const { url } = evt.currentTarget.dataset;
+    if (url == active) return;
+    dispatch(updateNavTopmost({ top: false, url: active }));
+  };
   // const handleRemove = (url: string) => {
   //   dispatch(removeServer(url));
   // };
   return (
-    <section className="flex h-screen bg-gray-200 dark:bg-gray-900 select-none">
-      <aside className="app-drag flex flex-col items-center gap-3 w-[60px] h-full ">
+    <section className="flex h-screen bg-gray-200 bg-transparent select-none">
+      <aside className="app-drag flex flex-col items-center gap-3 w-[60px] h-full dark:bg-gray-900">
         <ul className="flex flex-col gap-2 py-1 text-gray-900 dark:text-gray-100 text-lg">
           {servers.map((server) => {
             const { web_url, api_url, name } = server;
             return (
               <li
+                data-tooltip-id={active == web_url ? "" : "tooltip"}
+                data-tooltip-content={name}
+                data-tooltip-place="right"
                 role="button"
                 key={web_url}
-                className={clsx("relative group px-3 w-full")}
+                className={clsx("relative group px-3 w-full cursor-pointer")}
                 data-url={web_url}
                 onClick={handleSwitch}
-                title={name}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+                // title={name}
               >
                 <div
                   className={clsx(
                     "app-no-drag",
-                    "w-9 h-9 flex items-center justify-center cursor-pointer rounded hover:bg-gray-500/50",
+                    "w-9 h-9 flex items-center justify-center rounded hover:bg-gray-500/50",
                     web_url === active && "bg-gray-500/50"
                   )}
                 >
@@ -80,6 +96,7 @@ const Layout = () => {
       <main className="w-[calc(100%_-_60px)] h-full">
         <div className="">{/* <Tabs /> */}</div>
       </main>
+      <Tooltip id="tooltip" place="bottom-start" />
     </section>
   );
 };

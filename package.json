@@ -1,6 +1,6 @@
 {
   "name": "VoceChat",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "main": "dist-electron/main/index.js",
   "description": "vocechat desktop version",
   "author": "Tristan <yanggc888@163.com>",
@@ -26,6 +26,7 @@
     "electron-updater": "^6.1.1",
     "react-redux": "^8.1.1",
     "react-router-dom": "^6.14.0",
+    "react-tooltip": "^5.16.1",
     "redux-state-sync": "^3.1.4",
     "rooks": "^7.14.1"
   },

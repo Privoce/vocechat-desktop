@@ -6,11 +6,13 @@ export interface StoredData {
   servers: VocechatServer[];
   active: string;
   addModalVisible: boolean;
+  navViewTopmost: boolean;
 }
 const initialState: StoredData = {
   servers: Servers,
   active: Servers[0].web_url,
-  addModalVisible: false
+  addModalVisible: false,
+  navViewTopmost: false
 };
 
 const dataSlice = createSlice({
@@ -27,11 +29,15 @@ const dataSlice = createSlice({
     switchServer(state, action: PayloadAction<string>) {
       state.active = action.payload;
     },
+    updateNavTopmost(state, action: PayloadAction<{ top: boolean; url?: string }>) {
+      state.navViewTopmost = action.payload.top;
+    },
     updateAddModalVisible(state, action: PayloadAction<boolean>) {
       state.addModalVisible = action.payload;
     }
   }
 });
 
-export const { addServer, removeServer, switchServer, updateAddModalVisible } = dataSlice.actions;
+export const { addServer, removeServer, switchServer, updateAddModalVisible, updateNavTopmost } =
+  dataSlice.actions;
 export default dataSlice.reducer;

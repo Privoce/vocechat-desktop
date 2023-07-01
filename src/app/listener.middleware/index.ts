@@ -57,6 +57,14 @@ listenerMiddleware.startListening({
                 console.log("effect remove server");
               }
               break;
+            case "updateNavTopmost":
+              {
+                ipcRenderer.send("switch-view", {
+                  url: payload.top ? "NAV_VIEW_TOP_ENABLE" : payload.url
+                });
+                console.log("effect update navView topmost");
+              }
+              break;
             case "switchServer":
               {
                 ipcRenderer.send("switch-view", { url: payload });
