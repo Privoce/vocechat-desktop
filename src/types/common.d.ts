@@ -6,6 +6,7 @@ export type VocechatServer = {
   name: string;
   web_url: string;
   api_url?: string;
+  version?: string;
 };
 export declare global {
 interface Window{

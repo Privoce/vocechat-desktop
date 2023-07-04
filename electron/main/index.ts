@@ -206,6 +206,10 @@ app.on("window-all-closed", () => {
   win.destroy();
   if (process.platform !== "darwin") app.quit();
 });
+app.on("will-quit", () => {
+  // save user data
+  writeUserData(Servers);
+});
 
 app.on("second-instance", () => {
   if (win) {

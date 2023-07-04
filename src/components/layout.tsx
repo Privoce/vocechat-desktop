@@ -40,6 +40,8 @@ const Layout = () => {
   // const handleRemove = (url: string) => {
   //   dispatch(removeServer(url));
   // };
+  console.log("layout servers", servers);
+
   return (
     <section className="flex h-screen bg-transparent select-none">
       <aside className="app-drag flex flex-col items-center gap-3 w-[66px] pt-8 h-full bg-neutral-200 dark:bg-gray-900">
@@ -101,7 +103,7 @@ const Layout = () => {
       <main className="flex-1 h-full">
         <div className="">{/* <Tabs /> */}</div>
       </main>
-      <Tooltip id="tooltip" place="bottom-start" className="tooltip" />
+      <Tooltip id="tooltip" place="bottom-start" className="tooltip !opacity-100" />
     </section>
   );
 };

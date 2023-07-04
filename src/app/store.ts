@@ -3,7 +3,7 @@ import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import {
   Config,
   createStateSyncMiddleware,
-  initStateWithPrevTab,
+  initMessageListener,
   withReduxStateSync
 } from "redux-state-sync";
 import listenerMiddleware from "./listener.middleware";
@@ -11,14 +11,12 @@ import { dataApi } from "./services/data";
 import dataReducer from "./slices/data";
 
 const config = {
-  // filter out
-  // predicate: (action: any) => {
-  //   const { type } = action;
-  //   const synced = !type.starsWith("dataApi");
-  //   console.log("predicate sync", action.type, synced);
-  //   return synced;
-  // },
-  // blacklist: ["dataApi/subscriptions/unsubscribeQueryResult"],
+  // Overwrite existing state with incoming state
+  receiveState: (prevState, nextState) => {
+    console.log("receiveState", prevState, nextState);
+
+    return nextState;
+  },
   broadcastChannelOption: {
     type: "native"
   },
@@ -43,5 +41,5 @@ export type AppDispatch = typeof store.dispatch;
 
 export const useAppDispatch = () => useDispatch<AppDispatch>();
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector;
-initStateWithPrevTab(store);
+initMessageListener(store);
 export default store;

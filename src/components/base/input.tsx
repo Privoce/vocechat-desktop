@@ -45,12 +45,12 @@ const Input: FC<Props> = ({ type = "text", className = "", ...rest }) => {
     isLarge && "py-3",
     isNone && "!border-none bg-transparent shadow-none",
     isPwd && "pr-[30px]",
-    isError && "!border-red-500"
+    isError && "!border-red-500 !shadow-red-100 dark:!shadow-red-900"
   );
   return (
     <input
       type={type}
-      className={`${inputClass} rounded border border-solid border-gray-200 dark:border-gray-400 shadow-sm ${className}`}
+      className={`${inputClass} shadow-sm focus:shadow-primary-100 dark:focus:shadow-primary-900 rounded border border-solid border-gray-200 dark:border-gray-400 ${className}`}
       {...rest}
     />
   );

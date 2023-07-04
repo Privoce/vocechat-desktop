@@ -19,6 +19,8 @@ const dataSlice = createSlice({
   initialState,
   reducers: {
     initializeServers(state, action: PayloadAction<VocechatServer[]>) {
+      console.log("action init servers", action.payload);
+
       state.servers = action.payload;
       state.active = action.payload[0]?.web_url;
     },

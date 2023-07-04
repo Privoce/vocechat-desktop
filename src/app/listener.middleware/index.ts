@@ -13,7 +13,7 @@ listenerMiddleware.startListening({
   predicate: (action) => {
     const { type = "" } = action;
     const [prefix] = type.split("/");
-    console.log("predicate", prefix);
+    console.log("predicate", action);
     // console.log("operation", type);
     return operations.includes(prefix);
     // console.log("listener predicate", action, currentState, previousState);

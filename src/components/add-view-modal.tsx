@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import clsx from "clsx";
-import { dataApi, useLazyGetServerInfoQuery } from "@/app/services/data";
+import {
+  dataApi,
+  useLazyGetServerInfoQuery,
+  useLazyGetServerVersionQuery
+} from "@/app/services/data";
 import { addServer, switchServer, updateAddModalVisible } from "@/app/slices/data";
 import { useAppSelector } from "@/app/store";
 import { ReactComponent as IconClose } from "@/assets/icons/close.svg";
@@ -21,6 +25,8 @@ const AddViewModal = () => {
   const dispatch = useDispatch();
   const [err, setErr] = useState(false);
   const [getServerInfo, { data, isSuccess, isLoading, isError }] = useLazyGetServerInfoQuery();
+  const [getServerVersion, { data: serverVersion, isSuccess: serverVersionSuccess }] =
+    useLazyGetServerVersionQuery();
   const [inputs, setInputs] = useState(initialInputs);
   const handleChange = (evt: React.ChangeEvent<HTMLInputElement>) => {
     const {
@@ -40,16 +46,19 @@ const AddViewModal = () => {
   }, [isError]);
 
   useEffect(() => {
-    if (data && isSuccess) {
+    console.log("version", serverVersion);
+
+    if (data && isSuccess && serverVersionSuccess) {
       const serverInfo = {
         name: data.name,
         web_url: inputs.api_url,
-        api_url: inputs.api_url
+        api_url: inputs.api_url,
+        version: serverVersion
       };
       dispatch(addServer(serverInfo));
       handleCancel();
     }
-  }, [isSuccess, data]);
+  }, [isSuccess, data, serverVersion, serverVersionSuccess]);
 
   const handleAdd = async () => {
     const { api_url } = inputs;
@@ -69,6 +78,7 @@ const AddViewModal = () => {
       return { ...prev, api_url: url };
     });
     await getServerInfo(url);
+    await getServerVersion(url);
   };
   const handleCancel = () => {
     setInputs(initialInputs);
