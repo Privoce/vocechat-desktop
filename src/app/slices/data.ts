@@ -1,6 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { VocechatServer } from "@/types/common";
-import { Servers } from "../config";
 
 export interface StoredData {
   servers: VocechatServer[];
@@ -9,8 +8,8 @@ export interface StoredData {
   navViewTopmost: boolean;
 }
 const initialState: StoredData = {
-  servers: Servers,
-  active: Servers[0].web_url,
+  servers: [],
+  active: "",
   addModalVisible: false,
   navViewTopmost: false
 };
@@ -19,6 +18,10 @@ const dataSlice = createSlice({
   name: "data",
   initialState,
   reducers: {
+    initializeServers(state, action: PayloadAction<VocechatServer[]>) {
+      state.servers = action.payload;
+      state.active = action.payload[0]?.web_url;
+    },
     addServer(state, action: PayloadAction<VocechatServer>) {
       state.servers.push(action.payload);
       state.active = action.payload.web_url;
@@ -38,6 +41,12 @@ const dataSlice = createSlice({
   }
 });
 
-export const { addServer, removeServer, switchServer, updateAddModalVisible, updateNavTopmost } =
-  dataSlice.actions;
+export const {
+  initializeServers,
+  addServer,
+  removeServer,
+  switchServer,
+  updateAddModalVisible,
+  updateNavTopmost
+} = dataSlice.actions;
 export default dataSlice.reducer;

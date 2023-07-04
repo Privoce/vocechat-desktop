@@ -41,13 +41,14 @@ const Layout = () => {
   //   dispatch(removeServer(url));
   // };
   return (
-    <section className="flex h-screen bg-gray-200 bg-transparent select-none">
-      <aside className="app-drag flex flex-col items-center gap-3 w-[60px] h-full dark:bg-gray-900">
+    <section className="flex h-screen bg-transparent select-none">
+      <aside className="app-drag flex flex-col items-center gap-3 w-[66px] pt-8 h-full bg-neutral-200 dark:bg-gray-900">
         <ul className="flex flex-col gap-2 py-1 text-gray-900 dark:text-gray-100 text-lg">
           {servers.map((server) => {
             const { web_url, api_url, name } = server;
             return (
               <li
+                // data-tooltip-delay-hide={122221000}
                 data-tooltip-id={active == web_url ? "" : "tooltip"}
                 data-tooltip-content={name}
                 data-tooltip-place="right"
@@ -64,7 +65,7 @@ const Layout = () => {
                   className={clsx(
                     "app-no-drag",
                     "w-9 h-9 flex items-center justify-center rounded hover:bg-gray-500/50",
-                    web_url === active && "bg-gray-500/50"
+                    web_url === active && "bg-white dark:bg-gray-500/50"
                   )}
                 >
                   <img
@@ -89,14 +90,18 @@ const Layout = () => {
             );
           })}
         </ul>
-        <div className="app-no-drag w-9 h-9 flex items-center justify-center cursor-pointer rounded hover:bg-gray-500/50">
-          <IconAdd role="button" className=" cursor-pointer" onClick={handleAddServer} />
+        <div className="group app-no-drag w-9 h-9 flex items-center justify-center cursor-pointer rounded hover:bg-gray-500/50">
+          <IconAdd
+            role="button"
+            className="cursor-pointer group-hover:fill-white"
+            onClick={handleAddServer}
+          />
         </div>
       </aside>
-      <main className="w-[calc(100%_-_60px)] h-full">
+      <main className="flex-1 h-full">
         <div className="">{/* <Tabs /> */}</div>
       </main>
-      <Tooltip id="tooltip" place="bottom-start" />
+      <Tooltip id="tooltip" place="bottom-start" className="tooltip" />
     </section>
   );
 };
