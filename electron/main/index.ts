@@ -1,22 +1,12 @@
 import { release } from "node:os";
 import { join } from "node:path";
 // import NodeURL from "node:url";
-import { app, BrowserView, BrowserWindow, desktopCapturer, ipcMain, shell } from "electron";
+import { app, BrowserView, BrowserWindow, desktopCapturer, ipcMain } from "electron";
 import { VocechatServer } from "@/types/common";
 import { readUserData, writeUserData } from "./user-data";
 
 // import { update } from "./update";
 
-// The built directory structure
-//
-// ├─┬ dist-electron
-// │ ├─┬ main
-// │ │ └── index.js    > Electron-Main
-// │ └─┬ preload
-// │   └── index.js    > Preload-Scripts
-// ├─┬ dist
-// │ └── index.html    > Electron-Renderer
-//
 process.env.DIST_ELECTRON = join(__dirname, "../");
 process.env.DIST = join(process.env.DIST_ELECTRON, "../dist");
 process.env.PUBLIC = process.env.VITE_DEV_SERVER_URL
@@ -37,8 +27,9 @@ if (!app.requestSingleInstanceLock()) {
 // Remove electron security warnings
 // This warning only shows in development mode
 // Read more on https://www.electronjs.org/docs/latest/tutorial/security
-// process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true'
-
+// process.env["ELECTRON_DISABLE_SECURITY_WARNINGS"] = "true";
+// process.env["ELECTRON_DEBUG_DRAG_REGIONS"] = "true";
+const leftNavWidth = 66;
 let win: BrowserWindow;
 let navView: BrowserView;
 let winModal: BrowserWindow;
@@ -47,7 +38,7 @@ const preload = join(__dirname, "../preload/index.js");
 const url = process.env.VITE_DEV_SERVER_URL;
 const indexHtml = join(process.env.DIST, "index.html");
 const ViewMap: Record<string, BrowserView | null> = {};
-const Servers: VocechatServer[] = [];
+let Servers: VocechatServer[] = [];
 const addView = (item: VocechatServer) => {
   if (!win) return;
   const { web_url } = item;
@@ -70,14 +61,34 @@ const addView = (item: VocechatServer) => {
   }
   view.setBackgroundColor("#fff");
   const titleBarHeight = win.getSize()[1] - win.getContentSize()[1];
+  console.log("titleBarHeight", titleBarHeight);
+
   view.setBounds({
-    x: 66,
+    x: leftNavWidth,
     y: titleBarHeight,
-    width: 1134,
+    width: 1200 - leftNavWidth,
     height: 800 - titleBarHeight
   });
-  view.setAutoResize({ width: true, height: true });
+  // view.setAutoResize({ width: true, height: true });
   view.webContents.loadURL(web_url);
+  let lastHandle: NodeJS.Timeout;
+  function handleWindowResize(e: any) {
+    e.preventDefault();
+
+    // the setTimeout is necessary because it runs after the event listener is handled
+    lastHandle = setTimeout(() => {
+      if (lastHandle != null) clearTimeout(lastHandle);
+      if (win)
+        view.setBounds({
+          x: leftNavWidth,
+          y: titleBarHeight,
+          width: win.getBounds().width - leftNavWidth,
+          height: win.getBounds().height - titleBarHeight
+        });
+    }, 0);
+  }
+
+  win.on("resize", handleWindowResize);
   ViewMap[web_url] = view;
 };
 async function createWindow() {
@@ -85,11 +96,11 @@ async function createWindow() {
     // titleBarStyle: "hidden",
     // titleBarOverlay: true,
     // frame: false,
-    // useContentSize: true,
     minWidth: 800,
     minHeight: 600,
     width: 1200,
     height: 800,
+    // useContentSize: true,
     // title: "",
     icon: join(process.env.PUBLIC, "favicon.ico"),
     webPreferences: {
@@ -102,6 +113,8 @@ async function createWindow() {
       contextIsolation: false
     }
   });
+  // // test
+  // win.webContents.loadURL("http://localhost:3009");
   // 初始化 userData
   try {
     const serverList = readUserData() as VocechatServer[];
@@ -122,7 +135,6 @@ async function createWindow() {
   } catch (error) {
     console.log("eee", error);
   }
-  // win.webContents.loadURL("https://baidu.com");
   navView = new BrowserView({
     webPreferences: {
       allowRunningInsecureContent: true,
@@ -151,14 +163,14 @@ async function createWindow() {
   }
   // 设置为透明
   navView.setBackgroundColor("rgba(1,1,1,0)");
-  // const titleBarHeight = win.getSize()[1] - win.getContentSize()[1];
+  const titleBarHeight = win.getSize()[1] - win.getContentSize()[1];
   navView.setBounds({
     x: 0,
-    y: 0,
+    y: titleBarHeight,
     width: 1200,
-    height: 800
+    height: 800 - titleBarHeight
   });
-  navView.setAutoResize({ width: true, height: true, horizontal: true, vertical: true });
+  navView.setAutoResize({ height: true });
 
   // Apply electron-updater
   // update(win);
@@ -200,6 +212,7 @@ app.on("window-all-closed", () => {
   Object.keys(ViewMap).forEach((key) => {
     ViewMap[key] = null;
   });
+  Servers = [];
   if (process.platform !== "darwin") app.quit();
 });
 app.on("will-quit", () => {

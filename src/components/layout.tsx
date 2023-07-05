@@ -40,7 +40,7 @@ const Layout = () => {
 
   return (
     <section className="flex h-screen bg-transparent select-none">
-      <aside className="app-drag flex flex-col items-center gap-3 w-[66px] pt-8 h-full bg-neutral-200 dark:bg-gray-900">
+      <aside className="app-drag flex flex-col items-center gap-3 w-[66px] pt-2 h-full bg-neutral-200 dark:bg-gray-900">
         <ul className="flex flex-col gap-2 py-1 text-gray-900 dark:text-gray-100 text-lg">
           {servers.map((server) => {
             const { web_url, api_url, name } = server;
@@ -99,7 +99,7 @@ const Layout = () => {
       <main className="flex-1 h-full flex justify-center items-center">
         {/* <div className="">wwwww</div> */}
       </main>
-      <Tooltip id="tooltip" place="bottom-start" className="tooltip !opacity-100" />
+      <Tooltip id="tooltip" place="bottom-start" className="tooltip" />
     </section>
   );
 };

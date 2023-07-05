@@ -4,17 +4,3 @@
 .tooltip {
   @apply bg-neutral-100 dark:bg-neutral-900 text-black  dark:text-white rounded-lg px-4 py-2 drop-shadow-lg;
 }
-@layer utilities {
-  .app-drag {
-    -webkit-app-region: drag;
-  }
-  .app-no-drag {
-    -webkit-app-region: no-drag;
-  }
-}
-/* html.dark #root {
-  background: rgb(64 67 71);
-} */
-.nav.visible {
-  display: none !important;
-}
