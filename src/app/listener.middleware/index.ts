@@ -39,6 +39,15 @@ listenerMiddleware.startListening({
       case "data":
         {
           switch (operation) {
+            case "initializeServers":
+              {
+                const servers = payload ?? [];
+                if (servers.length > 0) {
+                  ipcRenderer.send("switch-view", { url: servers[0]?.web_url });
+                  console.log("effect initializeServers switch view");
+                }
+              }
+              break;
             case "updateAddModalVisible":
               {
                 ipcRenderer.send("add-view-modal", { visible: payload });

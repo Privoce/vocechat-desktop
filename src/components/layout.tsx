@@ -27,14 +27,10 @@ const Layout = () => {
   const handleAddServer = () => {
     dispatch(updateAddModalVisible(true));
   };
-  const handleMouseEnter = (evt: MouseEvent<HTMLLIElement>) => {
-    const { url } = evt.currentTarget.dataset;
-    if (url == active) return;
+  const handleMouseEnter = () => {
     dispatch(updateNavTopmost({ top: true }));
   };
-  const handleMouseLeave = (evt: MouseEvent<HTMLLIElement>) => {
-    const { url } = evt.currentTarget.dataset;
-    if (url == active) return;
+  const handleMouseLeave = () => {
     dispatch(updateNavTopmost({ top: false, url: active }));
   };
   // const handleRemove = (url: string) => {
@@ -51,7 +47,7 @@ const Layout = () => {
             return (
               <li
                 // data-tooltip-delay-hide={122221000}
-                data-tooltip-id={active == web_url ? "" : "tooltip"}
+                data-tooltip-id={"tooltip"}
                 data-tooltip-content={name}
                 data-tooltip-place="right"
                 role="button"
@@ -66,7 +62,7 @@ const Layout = () => {
                 <div
                   className={clsx(
                     "app-no-drag",
-                    "w-9 h-9 flex items-center justify-center rounded hover:bg-gray-500/50",
+                    "w-9 h-9 flex items-center justify-center rounded hover:bg-gray-500/10 dark:hover:bg-gray-500/50",
                     web_url === active && "bg-white dark:bg-gray-500/50"
                   )}
                 >
@@ -100,8 +96,8 @@ const Layout = () => {
           />
         </div>
       </aside>
-      <main className="flex-1 h-full">
-        <div className="">{/* <Tabs /> */}</div>
+      <main className="flex-1 h-full flex justify-center items-center">
+        {/* <div className="">wwwww</div> */}
       </main>
       <Tooltip id="tooltip" place="bottom-start" className="tooltip !opacity-100" />
     </section>

@@ -78,19 +78,19 @@ const addView = (item: VocechatServer) => {
   });
   view.setAutoResize({ width: true, height: true });
   view.webContents.loadURL(web_url);
-  // win.addBrowserView(view);
   ViewMap[web_url] = view;
 };
 async function createWindow() {
   win = new BrowserWindow({
-    titleBarStyle: "hidden",
-    titleBarOverlay: true,
+    // titleBarStyle: "hidden",
+    // titleBarOverlay: true,
+    // frame: false,
     // useContentSize: true,
     minWidth: 800,
     minHeight: 600,
     width: 1200,
     height: 800,
-    title: "Vocechat Desktop",
+    // title: "",
     icon: join(process.env.PUBLIC, "favicon.ico"),
     webPreferences: {
       allowRunningInsecureContent: true,
@@ -102,10 +102,6 @@ async function createWindow() {
       contextIsolation: false
     }
   });
-  // win.on("will-resize", (e, newBounds) => {
-  //   const { width, height } = newBounds;
-
-  // });
   // 初始化 userData
   try {
     const serverList = readUserData() as VocechatServer[];
@@ -153,22 +149,14 @@ async function createWindow() {
   } else {
     navView.webContents.loadFile(indexHtml);
   }
-  navView.webContents.on("did-finish-load", () => {
-    navView?.webContents.send("main-process-message", new Date().toLocaleString());
-  });
-  // Make all links open with the browser, not with the application
-  navView.webContents.setWindowOpenHandler(({ url }) => {
-    if (url.startsWith("https:")) shell.openExternal(url);
-    return { action: "deny" };
-  });
   // 设置为透明
   navView.setBackgroundColor("rgba(1,1,1,0)");
-  const titleBarHeight = win.getSize()[1] - win.getContentSize()[1];
+  // const titleBarHeight = win.getSize()[1] - win.getContentSize()[1];
   navView.setBounds({
     x: 0,
-    y: titleBarHeight,
+    y: 0,
     width: 1200,
-    height: 800 - titleBarHeight
+    height: 800
   });
   navView.setAutoResize({ width: true, height: true, horizontal: true, vertical: true });
 
@@ -198,20 +186,30 @@ async function createWindow() {
   }
 }
 
-app.whenReady().then(createWindow);
+app.whenReady().then(() => {
+  console.log("event:app-ready");
+  createWindow();
+});
 
 app.on("window-all-closed", () => {
   // save user data
+  console.log("event:window-all-closed");
+
   writeUserData(Servers);
   win.destroy();
+  Object.keys(ViewMap).forEach((key) => {
+    ViewMap[key] = null;
+  });
   if (process.platform !== "darwin") app.quit();
 });
 app.on("will-quit", () => {
   // save user data
+  console.log("event:will-quit");
   writeUserData(Servers);
 });
 
 app.on("second-instance", () => {
+  console.log("event:second-instance", win);
   if (win) {
     // Focus on the main window if the user tried to open another
     if (win.isMinimized()) win.restore();
@@ -221,27 +219,11 @@ app.on("second-instance", () => {
 
 app.on("activate", () => {
   const allWindows = BrowserWindow.getAllWindows();
+  console.log("event:activate", allWindows.length);
   if (allWindows.length) {
     allWindows[0].focus();
   } else {
     createWindow();
-  }
-});
-
-// New window example arg: new windows url
-ipcMain.handle("open-win", (_, arg) => {
-  const childWindow = new BrowserWindow({
-    webPreferences: {
-      preload,
-      nodeIntegration: true,
-      contextIsolation: false
-    }
-  });
-
-  if (process.env.VITE_DEV_SERVER_URL) {
-    childWindow.loadURL(`${url}#${arg}`);
-  } else {
-    childWindow.loadFile(indexHtml, { hash: arg });
   }
 });
 // Event handler for asynchronous incoming messages
@@ -249,13 +231,13 @@ ipcMain.on("switch-view", (event, arg) => {
   if (!win) return;
   const { url } = arg as { url: string };
   if (url == "NAV_VIEW_TOP_ENABLE") {
-    // tricky
+    // tricky cmd
     win.setTopBrowserView(navView);
     return;
   }
   if (url) {
     const view = ViewMap[url];
-    console.log("switch view", ViewMap, view);
+    console.log("switch view", url);
     if (view) {
       win.setTopBrowserView(view);
     }
@@ -274,9 +256,6 @@ ipcMain.on("remove-view", (event, arg) => {
   const currView = ViewMap[url];
   if (currView) {
     win.removeBrowserView(currView);
-    // win.setBrowserView
-    // undocumented API
-    // (currView.webContents as any).destroy();
     ViewMap[url] = null;
   }
 });
@@ -302,7 +281,6 @@ ipcMain.on("toggle-popover-window", (event, arg) => {
   const currView = ViewMap[web_url];
   if (currView) {
     console.log("post msg", visible, name);
-
     currView.webContents.send("server-name-popover", { visible, name });
   }
 });
@@ -316,8 +294,7 @@ app.on("certificate-error", (event, webContents, url, error, certificate, callba
 });
 // init redux store
 ipcMain.handle("init-views", () => {
-  console.log("init-views", Servers);
-
+  console.log("handle:init-views", Servers.length);
   return Servers;
 });
 // share screen
