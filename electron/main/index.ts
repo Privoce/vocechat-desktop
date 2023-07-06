@@ -1,7 +1,7 @@
 import { release } from "node:os";
 import { join } from "node:path";
 // import NodeURL from "node:url";
-import { app, BrowserView, BrowserWindow, desktopCapturer, ipcMain } from "electron";
+import { app, BrowserWindow, desktopCapturer, ipcMain, Menu, Tray } from "electron";
 import { VocechatServer } from "@/types/common";
 import { readUserData, writeUserData } from "./user-data";
 
@@ -29,81 +29,31 @@ if (!app.requestSingleInstanceLock()) {
 // Read more on https://www.electronjs.org/docs/latest/tutorial/security
 // process.env["ELECTRON_DISABLE_SECURITY_WARNINGS"] = "true";
 // process.env["ELECTRON_DEBUG_DRAG_REGIONS"] = "true";
-const leftNavWidth = 66;
 let win: BrowserWindow;
-let navView: BrowserView;
+let tray: Tray;
+let triggerByQuit = false;
+// let navView: BrowserView;
 let winModal: BrowserWindow;
 // Here, you can also use other preload
 const preload = join(__dirname, "../preload/index.js");
 const url = process.env.VITE_DEV_SERVER_URL;
 const indexHtml = join(process.env.DIST, "index.html");
-const ViewMap: Record<string, BrowserView | null> = {};
-let Servers: VocechatServer[] = [];
-const addView = (item: VocechatServer) => {
-  if (!win) return;
-  const { web_url } = item;
-  if (ViewMap[web_url]) return;
-  // 加到全局变量中
-  Servers.push(item);
-  const view = new BrowserView({
-    webPreferences: {
-      preload,
-      nodeIntegration: true,
-      devTools: process.env.NODE_ENV === "development",
-      webSecurity: false
-    }
-  });
-  win.addBrowserView(view);
-  if (process.env.NODE_ENV === "development") {
-    view.webContents.openDevTools({
-      mode: "bottom"
-    });
-  }
-  view.setBackgroundColor("#fff");
-  const titleBarHeight = win.getSize()[1] - win.getContentSize()[1];
-  console.log("titleBarHeight", titleBarHeight);
-
-  view.setBounds({
-    x: leftNavWidth,
-    y: titleBarHeight,
-    width: 1200 - leftNavWidth,
-    height: 800 - titleBarHeight
-  });
-  // view.setAutoResize({ width: true, height: true });
-  view.webContents.loadURL(web_url);
-  let lastHandle: NodeJS.Timeout;
-  function handleWindowResize(e: any) {
-    e.preventDefault();
-
-    // the setTimeout is necessary because it runs after the event listener is handled
-    lastHandle = setTimeout(() => {
-      if (lastHandle != null) clearTimeout(lastHandle);
-      if (win)
-        view.setBounds({
-          x: leftNavWidth,
-          y: titleBarHeight,
-          width: win.getBounds().width - leftNavWidth,
-          height: win.getBounds().height - titleBarHeight
-        });
-    }, 0);
-  }
-
-  win.on("resize", handleWindowResize);
-  ViewMap[web_url] = view;
-};
+const Servers: VocechatServer[] = readUserData();
 async function createWindow() {
   win = new BrowserWindow({
-    // titleBarStyle: "hidden",
-    // titleBarOverlay: true,
-    // frame: false,
+    titleBarStyle: "hidden",
+    titleBarOverlay: true,
+    frame: false,
     minWidth: 800,
     minHeight: 600,
     width: 1200,
     height: 800,
+    backgroundColor: "transparent",
     // useContentSize: true,
     // title: "",
     icon: join(process.env.PUBLIC, "favicon.ico"),
     webPreferences: {
+      webviewTag: true,
       allowRunningInsecureContent: true,
       preload,
       // Warning: Enable nodeIntegration and disable contextIsolation is not secure in production
@@ -113,64 +63,30 @@ async function createWindow() {
       contextIsolation: false
     }
   });
-  // // test
-  // win.webContents.loadURL("http://localhost:3009");
-  // 初始化 userData
-  try {
-    const serverList = readUserData() as VocechatServer[];
-    if (serverList && serverList.length) {
-      serverList.forEach((item) => {
-        addView(item);
-      });
-    } else {
-      addView({
-        name: "Privoce",
-        web_url:
-          process.env.NODE_ENV === "development"
-            ? "http://localhost:3009"
-            : "https://privoce.voce.chat",
-        api_url: "https://dev.voce.chat"
-      });
-    }
-  } catch (error) {
-    console.log("eee", error);
-  }
-  navView = new BrowserView({
-    webPreferences: {
-      allowRunningInsecureContent: true,
-      // webviewTag: true,
-      preload,
-      // Warning: Enable nodeIntegration and disable contextIsolation is not secure in production
-      // Consider using contextBridge.exposeInMainWorld
-      // Read more on https://www.electronjs.org/docs/latest/tutorial/context-isolation
-      nodeIntegration: true,
-      contextIsolation: false
+  win.on("close", (e) => {
+    console.log("event:close", e);
+    if (!triggerByQuit) {
+      e.preventDefault();
+      win.hide();
     }
   });
-  win.addBrowserView(navView);
-  win.setTopBrowserView(navView);
+  win.on("restore", function () {
+    console.log("event:restore");
+
+    win.show();
+  });
   if (url) {
     // electron-vite-vue#298
-    navView.webContents.loadURL(url);
+    win.webContents.loadURL(url);
     if (process.env.NODE_ENV === "development") {
       // Open devTool if the app is not packaged
-      navView.webContents.openDevTools({
+      win.webContents.openDevTools({
         mode: "detach"
       });
     }
   } else {
-    navView.webContents.loadFile(indexHtml);
+    win.webContents.loadFile(indexHtml);
   }
-  // 设置为透明
-  navView.setBackgroundColor("rgba(1,1,1,0)");
-  const titleBarHeight = win.getSize()[1] - win.getContentSize()[1];
-  navView.setBounds({
-    x: 0,
-    y: titleBarHeight,
-    width: 1200,
-    height: 800 - titleBarHeight
-  });
-  navView.setAutoResize({ height: true });
 
   // Apply electron-updater
   // update(win);
@@ -201,6 +117,20 @@ async function createWindow() {
 app.whenReady().then(() => {
   console.log("event:app-ready");
   createWindow();
+  tray = new Tray(join(process.env.PUBLIC, "tray.png"));
+  const contextMenu = Menu.buildFromTemplate([]);
+  tray.on("click", function () {
+    if (win && win.isVisible()) {
+      return;
+    }
+    win.show();
+  });
+  tray.setToolTip("VoceChat");
+  tray.setContextMenu(contextMenu);
+});
+app.on("before-quit", () => {
+  console.log("event:before-quit");
+  triggerByQuit = true;
 });
 
 app.on("window-all-closed", () => {
@@ -209,10 +139,7 @@ app.on("window-all-closed", () => {
 
   writeUserData(Servers);
   win.destroy();
-  Object.keys(ViewMap).forEach((key) => {
-    ViewMap[key] = null;
-  });
-  Servers = [];
+  // Servers = [];
   if (process.platform !== "darwin") app.quit();
 });
 app.on("will-quit", () => {
@@ -234,42 +161,32 @@ app.on("activate", () => {
   const allWindows = BrowserWindow.getAllWindows();
   console.log("event:activate", allWindows.length);
   if (allWindows.length) {
-    allWindows[0].focus();
+    win.show();
+    win.focus();
   } else {
     createWindow();
   }
 });
 // Event handler for asynchronous incoming messages
-ipcMain.on("switch-view", (event, arg) => {
-  if (!win) return;
-  const { url } = arg as { url: string };
-  if (url == "NAV_VIEW_TOP_ENABLE") {
-    // tricky cmd
-    win.setTopBrowserView(navView);
-    return;
-  }
-  if (url) {
-    const view = ViewMap[url];
-    console.log("switch view", url);
-    if (view) {
-      win.setTopBrowserView(view);
-    }
-  }
-  // // Event emitter for sending asynchronous messages
-  // event.sender.send('asynchronous-reply', 'async pong')
+// init redux store
+ipcMain.handle("init-views", () => {
+  console.log("handle:init-views", Servers.length);
+  return Servers;
 });
 ipcMain.on("add-view", (event, arg) => {
   console.log("add-view", arg);
   const { data } = arg;
-  addView(data as VocechatServer);
+  if (Servers.find((item) => item.web_url === data.web_url)) {
+    return;
+  }
+  Servers.push(data as VocechatServer);
 });
 ipcMain.on("remove-view", (event, arg) => {
   console.log("remove-view", arg);
   const { url } = arg;
-  const currView = ViewMap[url];
-  if (currView) {
-    win.removeBrowserView(currView);
-    ViewMap[url] = null;
+  const idx = Servers.findIndex((item) => item.web_url === url);
+  if (idx > -1) {
+    Servers.splice(idx, 1);
   }
 });
 // add view modal visible
@@ -286,16 +203,16 @@ ipcMain.on("add-view-modal", (event, arg) => {
 // toggle popover
 ipcMain.on("toggle-popover-window", (event, arg) => {
   console.log(arg);
-  const {
-    visible,
-    web_url,
-    name = ""
-  } = arg as { visible: boolean; web_url: string; name?: string };
-  const currView = ViewMap[web_url];
-  if (currView) {
-    console.log("post msg", visible, name);
-    currView.webContents.send("server-name-popover", { visible, name });
-  }
+  // const {
+  //   visible,
+  //   web_url,
+  //   name = ""
+  // } = arg as { visible: boolean; web_url: string; name?: string };
+  // const currView = ViewMap[web_url];
+  // if (currView) {
+  //   console.log("post msg", visible, name);
+  //   currView.webContents.send("server-name-popover", { visible, name });
+  // }
 });
 // ignore certificate error
 app.commandLine.appendSwitch("ignore-certificate-errors");
@@ -305,11 +222,7 @@ app.on("certificate-error", (event, webContents, url, error, certificate, callba
   event.preventDefault();
   callback(true);
 });
-// init redux store
-ipcMain.handle("init-views", () => {
-  console.log("handle:init-views", Servers.length);
-  return Servers;
-});
+
 // share screen
 ipcMain.handle("DESKTOP_CAPTURER_GET_SOURCES", (event, opts) => {
   console.log("DESKTOP_CAPTURER_GET_SOURCES", opts);

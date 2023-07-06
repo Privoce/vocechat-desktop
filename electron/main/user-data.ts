@@ -3,7 +3,7 @@ import fs from "fs";
 import path from "path";
 import { app } from "electron";
 
-const USER_DATA_PATH = path.join(app.getPath("userData"), "user_data.json");
+const USER_DATA_PATH = path.join(app.getPath("userData"), "server_list.json");
 
 export function readUserData() {
   try {
@@ -12,7 +12,17 @@ export function readUserData() {
   } catch (error) {
     console.log("Error retrieving user data", error);
     // you may want to propagate the error, up to you
-    return null;
+
+    return [
+      {
+        name: "Privoce",
+        web_url:
+          process.env.NODE_ENV === "development"
+            ? "http://localhost:3009"
+            : "https://privoce.voce.chat",
+        api_url: "https://dev.voce.chat"
+      }
+    ];
   }
 }
 

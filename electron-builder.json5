@@ -10,7 +10,11 @@
   files: ["dist-electron", "dist"],
   mac: {
     artifactName: "${productName}_${version}.${ext}",
-    target: ["dmg", "zip"]
+    hardenedRuntime: true,
+    entitlements: "build/entitlements.mac.plist",
+    entitlementsInherit: "build/entitlements.mac.plist",
+    gatekeeperAssess: false,
+    category: "public.app-category.developer-tools"
   },
   win: {
     target: [
