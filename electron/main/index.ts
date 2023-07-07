@@ -125,10 +125,14 @@ app.whenReady().then(() => {
   tray = new Tray(join(process.env.PUBLIC, "tray.png"));
   const contextMenu = Menu.buildFromTemplate([]);
   tray.on("click", function () {
-    if (win && win.isVisible()) {
+    if (win && win.isVisible() &&win.isFocused()) {
       return;
     }
+    if(win.isMinimized()){
+      win.restore();
+    }
     win.show();
+    win.focus();
   });
   tray.setToolTip("VoceChat");
   tray.setContextMenu(contextMenu);
