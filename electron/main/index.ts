@@ -1,7 +1,7 @@
 import { release } from "node:os";
 import { join } from "node:path";
 // import NodeURL from "node:url";
-import { app, BrowserWindow, desktopCapturer, ipcMain, Menu, Tray } from "electron";
+import { app, BrowserWindow, desktopCapturer, ipcMain, Menu, shell, Tray } from "electron";
 import { VocechatServer } from "@/types/common";
 import { readUserData, writeUserData } from "./user-data";
 
@@ -88,6 +88,11 @@ async function createWindow() {
     win.webContents.loadFile(indexHtml);
   }
 
+  // Make all links open with the browser, not with the application
+  win.webContents.setWindowOpenHandler(({ url }) => {
+    if (url.startsWith("http")) shell.openExternal(url);
+    return { action: "deny" };
+  });
   // Apply electron-updater
   // update(win);
   // 初始化modal

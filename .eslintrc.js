@@ -27,6 +27,7 @@ module.exports = {
   },
   plugins: ["@typescript-eslint", "react", "react-hooks"],
   rules: {
+    "@typescript-eslint/ban-ts-comment": "off",
     "@typescript-eslint/no-unused-vars": ["error", { ignoreRestSiblings: true }],
     "react/jsx-uses-react": "off",
     "react/react-in-jsx-scope": "off",

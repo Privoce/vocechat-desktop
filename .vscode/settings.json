@@ -28,7 +28,10 @@
   "[javascript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "cSpell.words": ["Privoce"],
+  "cSpell.words": [
+    "allowpopups",
+    "Privoce"
+  ],
   "reactSnippets.settings.prettierEnabled": true,
   "reactSnippets.settings.importReactOnTop": false,
   "[html]": {

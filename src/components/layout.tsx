@@ -4,17 +4,11 @@ import { useDispatch } from "react-redux";
 import { Tooltip } from "react-tooltip";
 import clsx from "clsx";
 import "react-contexify/dist/ReactContexify.css";
-// import { ipcRenderer } from "electron";
 import { removeServer, switchServer, updateAddModalVisible } from "@/app/slices/data";
 import { useAppSelector } from "@/app/store";
 import { ReactComponent as IconAdd } from "@/assets/icons/add.svg";
 import { isDarkMode } from "@/utils";
 
-// import { ReactComponent as IconDelete } from "@/assets/icons/delete.svg";
-
-// import Button from "./base/button";
-
-// type Props = {};
 const MENU_ID = "menu-id";
 const Layout = () => {
   const { servers, active } = useAppSelector((store) => store.data);
@@ -99,13 +93,6 @@ const Layout = () => {
                   {active == web_url && (
                     <div className="absolute right-0 top-0 w-0.5 h-full rounded bg-primary-500"></div>
                   )}
-                  {/* {active !== web_url && (
-                    <IconDelete
-                      onClick={handleRemove.bind(null, web_url)}
-                      role="button"
-                      className="invisible absolute right-1"
-                    />
-                )} */}
                 </li>
               );
             })}
@@ -124,6 +111,9 @@ const Layout = () => {
 
             return (
               <webview
+              //@ts-ignore
+              //eslint-disable-next-line react/no-unknown-property
+                allowpopups="true"
                 className={clsx(
                   "absolute left-0 top-0 w-full h-full",
                   active == web_url ? "visible" : "invisible"
