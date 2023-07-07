@@ -8,13 +8,14 @@
     output: "release/${version}"
   },
   files: ["dist-electron", "dist"],
+  "afterSign": "electron-builder-notarize",
   mac: {
     artifactName: "${productName}_${version}.${ext}",
     hardenedRuntime: true,
     entitlements: "build/entitlements.mac.plist",
     entitlementsInherit: "build/entitlements.mac.plist",
     gatekeeperAssess: false,
-    category: "public.app-category.developer-tools"
+    category: "public.app-category.lifestyle"
   },
   win: {
     target: [
