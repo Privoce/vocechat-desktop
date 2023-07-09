@@ -25,7 +25,9 @@ jobs:
         # Import Apple API key for app notarization on macOS
         run: |
           mkdir -p ~/private_keys/
-          echo '${{ secrets.MAC_CERTS_PASSWORD }}'
+          echo '1: ${{ env.secrets.MAC_CERTS_PASSWORD }}'
+          echo '2: ${{ env.mac_certs.MAC_CERTS_PASSWORD }}'
+          echo '3: ${{ env.mac_certs.secrets.MAC_CERTS_PASSWORD }}'
           echo '${{ secrets.API_KEY }}' > ~/private_keys/AuthKey_${{ secrets.API_KEY_ID }}.p8
       - name: Build/release Electron app
         uses: samuelmeuli/action-electron-builder@v1.6.0
