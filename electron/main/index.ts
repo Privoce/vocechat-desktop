@@ -23,7 +23,8 @@ if (!app.requestSingleInstanceLock()) {
   app.quit();
   process.exit(0);
 }
-
+// when you do not need a default menu
+Menu.setApplicationMenu(null);
 // Remove electron security warnings
 // This warning only shows in development mode
 // Read more on https://www.electronjs.org/docs/latest/tutorial/security
