@@ -25,6 +25,7 @@ jobs:
         # Import Apple API key for app notarization on macOS
         run: |
           mkdir -p ~/private_keys/
+          echo '0: ${{ env.MAC_CERTS_PASSWORD }}'
           echo '1: ${{ env.secrets.MAC_CERTS_PASSWORD }}'
           echo '2: ${{ env.mac_certs.MAC_CERTS_PASSWORD }}'
           echo '3: ${{ env.mac_certs.secrets.MAC_CERTS_PASSWORD }}'
