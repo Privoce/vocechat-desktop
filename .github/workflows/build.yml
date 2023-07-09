@@ -27,6 +27,8 @@ jobs:
           mkdir -p ~/private_keys/
           echo '0: ${{ env.MAC_CERTS_PASSWORD }}'
           echo '1: ${{ env.secrets.MAC_CERTS_PASSWORD }}'
+          echo '1.1: ${{ secrets.mac_certs.MAC_CERTS_PASSWORD }}'
+          echo '1.1.1: ${{ secrets.MAC_CERTS_PASSWORD }}'
           echo '2: ${{ env.mac_certs.MAC_CERTS_PASSWORD }}'
           echo '3: ${{ env.mac_certs.secrets.MAC_CERTS_PASSWORD }}'
           echo '${{ secrets.API_KEY }}' > ~/private_keys/AuthKey_${{ secrets.API_KEY_ID }}.p8
