@@ -4,7 +4,7 @@ import { useDispatch } from "react-redux";
 import { Tooltip } from "react-tooltip";
 import clsx from "clsx";
 import "react-contexify/dist/ReactContexify.css";
-import { removeServer, switchServer, updateAddModalVisible } from "@/app/slices/data";
+import { switchServer, updateAddModalVisible } from "@/app/slices/data";
 import { useAppSelector } from "@/app/store";
 import { ReactComponent as IconAdd } from "@/assets/icons/add.svg";
 import { isDarkMode } from "@/utils";

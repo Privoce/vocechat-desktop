@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import clsx from "clsx";
 import {
@@ -13,6 +13,7 @@ import { ReactComponent as InfoIcon } from "@/assets/icons/info.svg";
 import { getServerUrl } from "@/utils";
 import Button from "./base/button";
 import Input from "./base/input";
+import { useKey } from "rooks";
 
 // type Props = {};
 const initialInputs = {
@@ -21,6 +22,7 @@ const initialInputs = {
   api_url: ""
 };
 const AddViewModal = () => {
+  const containerRef = useRef(null);
   const servers = useAppSelector((store) => store.data.servers);
   const dispatch = useDispatch();
   const [err, setErr] = useState(false);
@@ -62,7 +64,7 @@ const AddViewModal = () => {
 
   const handleAdd = async () => {
     console.log("add: current servers", servers);
-    
+
     const { api_url } = inputs;
     const url = getServerUrl(api_url);
     if (!url) {
@@ -82,6 +84,15 @@ const AddViewModal = () => {
     await getServerInfo(url);
     await getServerVersion(url);
   };
+  useKey(
+    "Enter",
+    () => {
+      handleAdd();
+    },
+    {
+      target: containerRef
+    }
+  );
   const handleCancel = () => {
     setInputs(initialInputs);
     setErr(false);
@@ -92,7 +103,10 @@ const AddViewModal = () => {
     setErr(false);
   };
   return (
-    <div className="relative bg-white dark:bg-gray-900 w-screen h-screen p-10 pt-16 flex flex-col items-center justify-center">
+    <div
+      ref={containerRef}
+      className="relative bg-white dark:bg-gray-900 w-screen h-screen p-10 pt-16 flex flex-col items-center justify-center"
+    >
       <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Add a Server</h2>
       <div className="relative w-full flex flex-col gap-1 mt-8 mb-3">
         <label className="text-gray-900 dark:text-gray-100 text-sm" htmlFor="api_url">
