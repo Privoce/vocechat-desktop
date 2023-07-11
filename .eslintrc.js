@@ -5,8 +5,9 @@ module.exports = {
     node: true
   },
   extends: [
+    "plugin:prettier/recommended",
     "eslint:recommended",
-    "plugin:@typescript-eslint/recommended",
+    "plugin:@typescript-eslint/recommended-type-checked",
     "plugin:react/recommended"
   ],
   overrides: [
@@ -25,8 +26,9 @@ module.exports = {
     ecmaVersion: "latest",
     sourceType: "module"
   },
-  plugins: ["@typescript-eslint", "react", "react-hooks"],
+  plugins: ["prettier", "@typescript-eslint", "react", "react-hooks"],
   rules: {
+    "prettier/prettier": "error",
     "@typescript-eslint/ban-ts-comment": "off",
     "@typescript-eslint/no-unused-vars": ["error", { ignoreRestSiblings: true }],
     "react/jsx-uses-react": "off",

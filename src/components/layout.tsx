@@ -1,4 +1,4 @@
-import { MouseEvent } from "react";
+import { MouseEvent, useState } from "react";
 import { Item, ItemParams, Menu, useContextMenu } from "react-contexify";
 import { useDispatch } from "react-redux";
 import { Tooltip } from "react-tooltip";
@@ -8,9 +8,11 @@ import { removeServer, switchServer, updateAddModalVisible } from "@/app/slices/
 import { useAppSelector } from "@/app/store";
 import { ReactComponent as IconAdd } from "@/assets/icons/add.svg";
 import { isDarkMode } from "@/utils";
+import RemoveServerModal from "./modal-remove-server";
 
 const MENU_ID = "menu-id";
 const Layout = () => {
+  const [removeServer, setRemoveServer] = useState<undefined | string>(undefined);
   const { servers, active } = useAppSelector((store) => store.data);
   const { show } = useContextMenu({
     id: MENU_ID
@@ -46,12 +48,15 @@ const Layout = () => {
     const { cmd, url } = props;
     switch (cmd) {
       case "DELETE":
-        dispatch(removeServer(url));
+        updateRemoveServer(url);
         break;
 
       default:
         break;
     }
+  };
+  const updateRemoveServer = (web_url?: string) => {
+    setRemoveServer(web_url);
   };
   console.log("layout servers", servers);
 
@@ -99,11 +104,11 @@ const Layout = () => {
           </ul>
           <div className="group app-no-drag w-9 h-9 flex items-center justify-center cursor-pointer rounded hover:bg-gray-500/50">
             <IconAdd
-            data-tooltip-id={"tooltip"}
-            data-tooltip-content={"Add a server"}
-            data-tooltip-place="right"
+              data-tooltip-id={"tooltip"}
+              data-tooltip-content={"Add a server"}
+              data-tooltip-place="right"
               role="button"
-              className="cursor-pointer group-hover:fill-white"
+              className="cursor-pointer group-hover:fill-white outline-none"
               onClick={handleAddServer}
             />
           </div>
@@ -114,11 +119,11 @@ const Layout = () => {
 
             return (
               <webview
-              //@ts-ignore
-              //eslint-disable-next-line react/no-unknown-property
-              allowpopups="true"
-              //@ts-ignore
-              //eslint-disable-next-line react/no-unknown-property
+                //@ts-ignore
+                //eslint-disable-next-line react/no-unknown-property
+                allowpopups="true"
+                //@ts-ignore
+                //eslint-disable-next-line react/no-unknown-property
                 disablewebsecurity="true"
                 className={clsx(
                   "absolute left-0 top-0 w-full h-full",
@@ -138,6 +143,12 @@ const Layout = () => {
           Remove
         </Item>
       </Menu>
+      {!!removeServer && (
+        <RemoveServerModal
+          webUrl={removeServer}
+          handleCancel={updateRemoveServer.bind(null, undefined)}
+        />
+      )}
     </>
   );
 };
