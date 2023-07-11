@@ -99,6 +99,9 @@ const Layout = () => {
           </ul>
           <div className="group app-no-drag w-9 h-9 flex items-center justify-center cursor-pointer rounded hover:bg-gray-500/50">
             <IconAdd
+            data-tooltip-id={"tooltip"}
+            data-tooltip-content={"Add a server"}
+            data-tooltip-place="right"
               role="button"
               className="cursor-pointer group-hover:fill-white"
               onClick={handleAddServer}
@@ -113,7 +116,10 @@ const Layout = () => {
               <webview
               //@ts-ignore
               //eslint-disable-next-line react/no-unknown-property
-                allowpopups="true"
+              allowpopups="true"
+              //@ts-ignore
+              //eslint-disable-next-line react/no-unknown-property
+                disablewebsecurity="true"
                 className={clsx(
                   "absolute left-0 top-0 w-full h-full",
                   active == web_url ? "visible" : "invisible"

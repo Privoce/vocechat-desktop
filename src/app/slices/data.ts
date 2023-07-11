@@ -27,7 +27,10 @@ const dataSlice = createSlice({
       state.active = action.payload.web_url;
     },
     removeServer(state, action: PayloadAction<string>) {
-      state.servers = state.servers.filter((server) => server.web_url != action.payload);
+      const filteredServers=state.servers.filter((server) => server.web_url != action.payload);
+      console.log("remove server",action.payload,filteredServers);
+      
+      state.servers = filteredServers;
     },
     switchServer(state, action: PayloadAction<string>) {
       state.active = action.payload;

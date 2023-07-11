@@ -61,6 +61,8 @@ const AddViewModal = () => {
   }, [isSuccess, data, serverVersion, serverVersionSuccess]);
 
   const handleAdd = async () => {
+    console.log("add: current servers", servers);
+    
     const { api_url } = inputs;
     const url = getServerUrl(api_url);
     if (!url) {
