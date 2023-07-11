@@ -38,6 +38,12 @@
     allowToChangeInstallationDirectory: true,
     deleteAppDataOnUninstall: false
   },
+  "linux": {
+      "target": [
+        "AppImage",
+      ],
+      "category": "Social"
+    },
   publish: {
     provider: "github",
     owner: "privoce",
