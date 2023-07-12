@@ -4,7 +4,7 @@ import { HashRouter, Route, Routes } from "react-router-dom";
 import { ipcRenderer } from "electron";
 import Layout from "@/components/layout";
 import { initializeServers } from "./app/slices/data";
-import AddViewModal from "./components/add-view-modal";
+// import AddViewModal from "./components/add-view-modal";
 import { isDarkMode } from "./utils";
 
 // dark mode
@@ -27,7 +27,7 @@ function App() {
   return (
     <HashRouter>
       <Routes>
-        <Route path="/add-view-modal" element={<AddViewModal />}></Route>
+        {/* <Route path="/add-view-modal" element={<AddViewModal />}></Route> */}
         <Route path="/" element={<Layout />}></Route>
       </Routes>
     </HashRouter>

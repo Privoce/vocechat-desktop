@@ -48,12 +48,6 @@ listenerMiddleware.startListening({
                 }
               }
               break;
-            case "updateAddModalVisible":
-              {
-                ipcRenderer.send("add-view-modal", { visible: payload });
-                console.log("effect updateAddModalVisible");
-              }
-              break;
             case "addServer":
               {
                 ipcRenderer.send("add-view", { data: payload });

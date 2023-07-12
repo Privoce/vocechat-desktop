@@ -33,8 +33,6 @@ if (!app.requestSingleInstanceLock()) {
 let win: BrowserWindow;
 let tray: Tray;
 let triggerByQuit = false;
-// let navView: BrowserView;
-let winModal: BrowserWindow;
 // Here, you can also use other preload
 const preload = join(__dirname, "../preload/index.js");
 const url = process.env.VITE_DEV_SERVER_URL;
@@ -96,28 +94,6 @@ async function createWindow() {
   });
   // Apply electron-updater
   // update(win);
-  // 初始化modal
-  winModal = new BrowserWindow({
-    width: 440,
-    height: 322,
-    resizable: false,
-    parent: win,
-    modal: true,
-    webPreferences: {
-      preload,
-      nodeIntegration: true,
-      contextIsolation: false,
-      webSecurity: false
-    },
-    show: false,
-    closable: true
-  });
-  if (url) {
-    // electron-vite-vue#298
-    winModal.loadURL(`${url}#/add-view-modal`);
-  } else {
-    winModal.loadFile(indexHtml, { hash: "/add-view-modal" });
-  }
 }
 
 app.whenReady().then(() => {
@@ -126,10 +102,10 @@ app.whenReady().then(() => {
   tray = new Tray(join(process.env.PUBLIC, "tray.png"));
   const contextMenu = Menu.buildFromTemplate([]);
   tray.on("click", function () {
-    if (win && win.isVisible() &&win.isFocused()) {
+    if (win && win.isVisible() && win.isFocused()) {
       return;
     }
-    if(win.isMinimized()){
+    if (win.isMinimized()) {
       win.restore();
     }
     win.show();
@@ -197,18 +173,7 @@ ipcMain.on("remove-view", (event, arg) => {
   if (idx > -1) {
     Servers.splice(idx, 1);
   }
-  console.log("remove-view", arg,idx,Servers);
-});
-// add view modal visible
-ipcMain.on("add-view-modal", (event, arg) => {
-  console.log(arg);
-  const { visible } = arg as { visible: boolean };
-  if (visible) {
-    // winModal.reload();
-    winModal.show();
-  } else {
-    winModal.hide();
-  }
+  console.log("remove-view", arg, idx, Servers);
 });
 // toggle popover
 ipcMain.on("toggle-popover-window", (event, arg) => {

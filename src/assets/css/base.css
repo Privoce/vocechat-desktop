@@ -3,7 +3,7 @@
 @tailwind utilities;
 @layer components {
   .tooltip {
-    @apply bg-neutral-100 dark:bg-neutral-900 text-black  dark:text-white rounded-lg px-4 py-2 drop-shadow-lg;
+    @apply rounded-lg bg-neutral-100 px-4  py-2 text-black drop-shadow-lg dark:bg-neutral-900 dark:text-white;
   }
 }
 .app-drag {
@@ -14,4 +14,8 @@
 }
 :root {
   --contexify-menu-minWidth: 120px;
+}
+.bg-add-server {
+  background: linear-gradient(0deg, rgba(131, 131, 131, 0.2) 0%, rgba(131, 131, 131, 0.2) 100%),
+    linear-gradient(135deg, #3c8ce7 0%, #00eaff 100%);
 }

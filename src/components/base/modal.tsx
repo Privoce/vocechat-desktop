@@ -21,19 +21,19 @@ const Modal: FC<Props> = ({
   return (
     <div
       className={clsx(
-        "rounded-lg bg-white dark:bg-gray-900 drop-shadow",
-        compact ? "p-4 md:min-w-[406px] text-left" : "p-5 md:p-8 md:min-w-[440px] text-center",
+        "rounded-lg bg-white drop-shadow dark:bg-gray-900",
+        compact ? "p-4 text-left md:min-w-[406px]" : "p-5 text-center md:min-w-[440px] md:p-8",
         className
       )}
     >
       {title && (
-        <h3 className="text-xl text-gray-600 dark:text-white mb-4 font-semibold">{title}</h3>
+        <h3 className="mb-4 text-xl font-semibold text-gray-600 dark:text-white">{title}</h3>
       )}
       {description && (
-        <p className="text-sm text-gray-400 dark:text-gray-100 mb-2">{description}</p>
+        <p className="mb-2 text-sm text-gray-400 dark:text-gray-100">{description}</p>
       )}
       {children}
-      {buttons && <div className="pt-4 w-full flex justify-end gap-4 items-center">{buttons}</div>}
+      {buttons && <div className="flex w-full items-center justify-end gap-4 pt-4">{buttons}</div>}
     </div>
   );
 };

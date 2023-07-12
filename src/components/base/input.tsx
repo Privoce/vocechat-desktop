@@ -34,13 +34,13 @@ const Input: FC<Props> = ({ type = "text", className = "", ...rest }) => {
   // const noInner=!className.includes("inner");
   const isPwd = type == "password";
   const inputClass = clsx(
-    `w-full text-sm text-gray-800 dark:text-gray-200 p-2 outline-none 
-    bg-inherit
-  disabled:text-gray-500 disabled:bg-gray-100 
-  dark:disabled:text-gray-500 
-  dark:disabled:bg-gray-800/50
-  dark:disabled:border-gray-600 
-  placeholder:text-gray-400`,
+    `w-full bg-inherit p-2 text-sm text-gray-800 outline-none 
+    placeholder:text-gray-400
+  disabled:bg-gray-100 disabled:text-gray-500 
+  dark:text-gray-200 
+  dark:disabled:border-gray-600
+  dark:disabled:bg-gray-800/50 
+  dark:disabled:text-gray-500`,
     // noInner && 'rounded border border-solid border-gray-200 shadow',
     isLarge && "py-3",
     isNone && "!border-none bg-transparent shadow-none",
@@ -50,7 +50,7 @@ const Input: FC<Props> = ({ type = "text", className = "", ...rest }) => {
   return (
     <input
       type={type}
-      className={`${inputClass} shadow-sm focus:shadow-primary-100 dark:focus:shadow-primary-900 rounded border border-solid border-gray-200 dark:border-gray-400 ${className}`}
+      className={`${inputClass} rounded border border-solid border-gray-200 shadow-sm focus:shadow-primary-100 dark:border-gray-400 dark:focus:shadow-primary-900 ${className}`}
       {...rest}
     />
   );

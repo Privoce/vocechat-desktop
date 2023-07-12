@@ -27,16 +27,16 @@ const Button = ({
   return (
     <button
       className={clsx(
-        `text-sm text-white bg-primary-400 break-keep shadow-sm rounded px-4 py-2 md:hover:bg-primary-500 active:bg-primary-500 disabled:bg-gray-300 disabled:hover:bg-gray-300 disabled:hover:cursor-not-allowed`,
-        isFull && "w-full text-center justify-center",
+        `break-keep rounded bg-primary-400 px-4 py-2 text-sm text-white shadow-sm active:bg-primary-500 disabled:bg-gray-300 disabled:hover:cursor-not-allowed disabled:hover:bg-gray-300 md:hover:bg-primary-500`,
+        isFull && "w-full justify-center text-center",
         isGhost &&
-          " !text-gray-700 dark:!text-gray-100 !border !border-solid !border-gray-300 dark:!border-gray-500 !bg-transparent",
+          " !border !border-solid !border-gray-300 !bg-transparent !text-gray-700 dark:!border-gray-500 dark:!text-gray-100",
         isCancel &&
-          "!bg-transparent !text-black dark:!text-gray-50 !border !border-solid !border-gray-200",
+          "!border !border-solid !border-gray-200 !bg-transparent !text-black dark:!text-gray-50",
         isSmall && "!h-auto !py-2",
-        noBorder && "!shadow-none !border-none",
+        noBorder && "!border-none !shadow-none",
         isMini && "!h-auto !px-2.5 !py-1 !text-xs",
-        isDanger && "!bg-red-500 disabled:!bg-gray-300 md:hover:!bg-red-500/80 active:bg-red-700",
+        isDanger && "!bg-red-500 active:bg-red-700 disabled:!bg-gray-300 md:hover:!bg-red-500/80",
         className
       )}
       {...rest}
