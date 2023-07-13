@@ -103,7 +103,7 @@ const Layout = () => {
                     )}
                   >
                     <img
-                      className="h-6 w-6 rounded-full border border-gray-500/20"
+                      className="h-6 w-6 rounded-full"
                       src={`${
                         api_url || web_url
                       }/api/resource/organization/logo?t=${new Date().getTime()}`}
