@@ -3,7 +3,7 @@
 @tailwind utilities;
 @layer components {
   .tooltip {
-    @apply rounded-lg bg-neutral-100 px-4  py-2 text-black drop-shadow-lg dark:bg-neutral-900 dark:text-white;
+    @apply rounded-lg bg-neutral-100 px-4 py-2 text-black  opacity-100 shadow-md drop-shadow-lg dark:bg-neutral-900 dark:text-white;
   }
 }
 .app-drag {

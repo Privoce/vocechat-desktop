@@ -57,7 +57,7 @@ const AddServerModal = ({ mask = true }: { mask?: boolean }) => {
     if (data && isSuccess && serverVersionSuccess) {
       const serverInfo = {
         name: data.name,
-        web_url: inputs.api_url == PRIVOCE_SERVER_URL ? PRIVOCE_WEB_URL : PRIVOCE_SERVER_URL,
+        web_url: inputs.api_url == PRIVOCE_SERVER_URL ? PRIVOCE_WEB_URL : inputs.api_url,
         api_url: inputs.api_url,
         version: serverVersion
       };

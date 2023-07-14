@@ -8,7 +8,7 @@ import { switchServer, updateAddModalVisible } from "@/app/slices/data";
 import { useAppSelector } from "@/app/store";
 import { ReactComponent as IconAdd } from "@/assets/icons/add.svg";
 import { isDarkMode } from "@/utils";
-import AddServerModal from "./add-server-modal";
+import AddServerModal from "./modal-add-server";
 import RemoveServerModal from "./modal-remove-server";
 
 const MENU_ID = "menu-id";
@@ -78,7 +78,12 @@ const Layout = () => {
   return (
     <>
       <section className="flex h-screen select-none bg-transparent">
-        <aside className="app-drag flex h-full w-[66px] flex-col items-center gap-3 bg-neutral-200 pt-8 dark:bg-gray-900">
+        <aside
+          className={clsx(
+            "app-drag flex h-full w-[66px] flex-col items-center gap-3 bg-neutral-200 dark:bg-gray-900",
+            process.platform == "win32" ? "pt-4" : "pt-8"
+          )}
+        >
           <ul className="flex flex-col gap-2 py-1 text-lg text-gray-900 dark:text-gray-100">
             {servers.map((server) => {
               const { web_url, api_url, name } = server;
@@ -140,6 +145,7 @@ const Layout = () => {
                 //@ts-ignore
                 //eslint-disable-next-line react/no-unknown-property
                 disablewebsecurity="true"
+                useragent={`${navigator.userAgent} ${process.platform}`}
                 className={clsx(
                   "absolute left-0 top-0 h-full w-full",
                   active == web_url ? "visible" : "invisible"

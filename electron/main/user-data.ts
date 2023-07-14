@@ -18,7 +18,7 @@ export function readUserData() {
         name: "Privoce",
         web_url:
           process.env.NODE_ENV === "development"
-            ? "https://privoce.voce.chat"
+            ? "http://localhost:3009"
             : "https://privoce.voce.chat",
         api_url: "https://dev.voce.chat"
       }

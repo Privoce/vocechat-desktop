@@ -7,6 +7,7 @@ import renderer from "vite-plugin-electron-renderer";
 import svgr from "vite-plugin-svgr";
 import pkg from "./package.json";
 
+process.env.REACT_TOOLTIP_DISABLE_BASE_STYLES = "true";
 // https://vitejs.dev/config/
 export default defineConfig(({ command }) => {
   rmSync("dist-electron", { recursive: true, force: true });
@@ -14,7 +15,6 @@ export default defineConfig(({ command }) => {
   const isServe = command === "serve";
   const isBuild = command === "build";
   const sourcemap = isServe || !!process.env.VSCODE_DEBUG;
-
   return {
     resolve: {
       alias: {
