@@ -1,6 +1,6 @@
 {
   "name": "vocechat-desktop",
-  "version": "0.6.19",
+  "version": "0.6.20",
   "main": "dist-electron/main/index.js",
   "description": "vocechat desktop version",
   "author": "Tristan <yanggc888@163.com>",
