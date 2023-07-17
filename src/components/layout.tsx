@@ -134,6 +134,7 @@ const Layout = () => {
                   popperOptions={{ strategy: "fixed" }}
                   // onClickOutside={hide}
                   content={
+                    // @ts-ignore
                     <ContextMenu hideMenu={hideContextMenu.bind(null, web_url)} items={items} />
                   }
                 >
