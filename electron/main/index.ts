@@ -3,7 +3,7 @@ import { join } from "node:path";
 // import NodeURL from "node:url";
 import { app, BrowserWindow, desktopCapturer, ipcMain, Menu, shell, Tray } from "electron";
 import { VocechatServer } from "@/types/common";
-import { readUserData, writeUserData } from "./user-data";
+import { readUserData, USER_DATA_PATH, writeUserData } from "./user-data";
 
 // import { update } from "./update";
 
@@ -87,7 +87,6 @@ async function createWindow() {
   } else {
     win.webContents.loadFile(indexHtml);
   }
-
   // Make all links open with the browser, not with the application
   win.webContents.setWindowOpenHandler(({ url }) => {
     if (url.startsWith("http")) shell.openExternal(url);
@@ -104,21 +103,18 @@ app.whenReady().then(() => {
   tray = new Tray(join(process.env.PUBLIC, "tray.png"));
   const contextMenu = Menu.buildFromTemplate([
     {
-      label: "Quit VoceChat",
-      type: "normal",
-      role: "quit"
-    },
-    {
       label: "About",
       type: "normal",
       click: () => {
         winAbout = new BrowserWindow({
+          // alwaysOnTop: true,
+          movable: false,
           minimizable: false,
           maximizable: false,
           resizable: false,
           title: "About VoceChat",
           width: 400,
-          height: 300,
+          height: 400,
           webPreferences: {
             allowRunningInsecureContent: true,
             preload,
@@ -133,6 +129,11 @@ app.whenReady().then(() => {
           winAbout.webContents.loadFile(`${indexHtml}#/about`);
         }
       }
+    },
+    {
+      label: "Quit VoceChat",
+      type: "normal",
+      role: "quit"
     }
   ]);
   tray.on("click", function () {
@@ -149,7 +150,6 @@ app.whenReady().then(() => {
     tray.popUpContextMenu(contextMenu);
   });
   tray.setToolTip("VoceChat");
-  // tray.setContextMenu(contextMenu);
 });
 app.on("before-quit", (evt) => {
   console.log("event:before-quit");
@@ -159,10 +159,9 @@ app.on("before-quit", (evt) => {
 app.on("window-all-closed", () => {
   // save user data
   console.log("event:window-all-closed");
-
   writeUserData(Servers);
   win.destroy();
-  // Servers = [];
+  winAbout.destroy();
   if (process.platform !== "darwin") app.quit();
 });
 app.on("will-quit", () => {
@@ -195,6 +194,14 @@ app.on("activate", () => {
 ipcMain.handle("init-servers", () => {
   console.log("handle:init-servers", Servers.length);
   return Servers;
+});
+ipcMain.handle("data-file-path", () => {
+  console.log("handle:data-file-path", USER_DATA_PATH);
+  return USER_DATA_PATH;
+});
+ipcMain.on("show-data-file", () => {
+  console.log("show-data-file", USER_DATA_PATH);
+  shell.showItemInFolder(USER_DATA_PATH);
 });
 ipcMain.on("add-server", (event, arg) => {
   console.log("add-server", arg);

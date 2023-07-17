@@ -3,7 +3,7 @@ import fs from "fs";
 import path from "path";
 import { app } from "electron";
 
-const USER_DATA_PATH = path.join(app.getPath("userData"), "server_list.json");
+export const USER_DATA_PATH = path.join(app.getPath("userData"), "server_list.json");
 
 export function readUserData() {
   try {
