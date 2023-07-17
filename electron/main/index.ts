@@ -192,25 +192,25 @@ app.on("activate", () => {
 });
 // Event handler for asynchronous incoming messages
 // init redux store
-ipcMain.handle("init-views", () => {
-  console.log("handle:init-views", Servers.length);
+ipcMain.handle("init-servers", () => {
+  console.log("handle:init-servers", Servers.length);
   return Servers;
 });
-ipcMain.on("add-view", (event, arg) => {
-  console.log("add-view", arg);
+ipcMain.on("add-server", (event, arg) => {
+  console.log("add-server", arg);
   const { data } = arg;
   if (Servers.find((item) => item.web_url === data.web_url)) {
     return;
   }
   Servers.push(data as VocechatServer);
 });
-ipcMain.on("remove-view", (event, arg) => {
+ipcMain.on("remove-server", (event, arg) => {
   const { url } = arg;
   const idx = Servers.findIndex((item) => item.web_url === url);
   if (idx > -1) {
     Servers.splice(idx, 1);
   }
-  console.log("remove-view", arg, idx, Servers);
+  console.log("remove-server", arg, idx, Servers);
 });
 // ignore certificate error
 app.commandLine.appendSwitch("ignore-certificate-errors");

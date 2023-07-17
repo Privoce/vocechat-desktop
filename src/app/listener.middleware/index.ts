@@ -43,20 +43,20 @@ listenerMiddleware.startListening({
               {
                 const servers = payload ?? [];
                 if (servers.length > 0) {
-                  ipcRenderer.send("switch-view", { url: servers[0]?.web_url });
-                  console.log("effect initializeServers switch view");
+                  ipcRenderer.send("switch-server", { url: servers[0]?.web_url });
+                  console.log("effect initializeServers");
                 }
               }
               break;
             case "addServer":
               {
-                ipcRenderer.send("add-view", { data: payload });
+                ipcRenderer.send("add-server", { data: payload });
                 console.log("effect add server");
               }
               break;
             case "removeServer":
               {
-                ipcRenderer.send("remove-view", { url: payload });
+                ipcRenderer.send("remove-server", { url: payload });
                 console.log("effect remove server");
               }
               break;
