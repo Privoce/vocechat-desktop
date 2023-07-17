@@ -10,10 +10,12 @@ import { ReactComponent as IconAdd } from "@/assets/icons/add.svg";
 import { isDarkMode } from "@/utils";
 import AddServerModal from "./modal-add-server";
 import RemoveServerModal from "./modal-remove-server";
+import { WebviewTag } from "electron";
 
 const MENU_ID = "menu-id";
 const Layout = () => {
   const [removeServer, setRemoveServer] = useState<undefined | string>(undefined);
+  const [reloadVisible, setReloadVisible] = useState(false);
   const { servers, active, addModalVisible } = useAppSelector((store) => store.data);
   const { show } = useContextMenu({
     id: MENU_ID
@@ -36,6 +38,12 @@ const Layout = () => {
   const handleAddServer = () => {
     dispatch(updateAddModalVisible(true));
   };
+  const handleReload = () => {
+    const wv = document.querySelector("webview[data-visible='true']") as WebviewTag;
+    if (wv) {
+      wv.reload();
+    }
+  };
   const showContextMenu = (e: MouseEvent<HTMLLIElement>) => {
     e.preventDefault();
     show({
@@ -49,6 +57,7 @@ const Layout = () => {
         url: e.currentTarget.dataset.url
       }
     });
+    setReloadVisible(e.currentTarget.dataset.url == active);
   };
   const handleItemClick = ({ props, data }: ItemParams) => {
     console.log({ props, data });
@@ -150,6 +159,7 @@ const Layout = () => {
                   "absolute left-0 top-0 h-full w-full",
                   active == web_url ? "visible" : "invisible"
                 )}
+                data-visible={active == web_url}
                 key={web_url}
                 src={web_url}
               ></webview>
@@ -163,6 +173,11 @@ const Layout = () => {
         <Item className="danger" onClick={handleItemClick}>
           Remove
         </Item>
+        {reloadVisible && (
+          <Item className="danger" onClick={handleReload}>
+            Reload
+          </Item>
+        )}
       </Menu>
       {!!removeServer && (
         <RemoveServerModal

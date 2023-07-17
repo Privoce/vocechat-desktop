@@ -31,6 +31,7 @@ if (!app.requestSingleInstanceLock()) {
 // process.env["ELECTRON_DISABLE_SECURITY_WARNINGS"] = "true";
 // process.env["ELECTRON_DEBUG_DRAG_REGIONS"] = "true";
 let win: BrowserWindow;
+let winAbout: BrowserWindow;
 let tray: Tray;
 let triggerByQuit = false;
 // Here, you can also use other preload
@@ -92,6 +93,7 @@ async function createWindow() {
     if (url.startsWith("http")) shell.openExternal(url);
     return { action: "deny" };
   });
+
   // Apply electron-updater
   // update(win);
 }
@@ -100,7 +102,39 @@ app.whenReady().then(() => {
   console.log("event:app-ready");
   createWindow();
   tray = new Tray(join(process.env.PUBLIC, "tray.png"));
-  const contextMenu = Menu.buildFromTemplate([]);
+  const contextMenu = Menu.buildFromTemplate([
+    {
+      label: "Quit VoceChat",
+      type: "normal",
+      role: "quit"
+    },
+    {
+      label: "About",
+      type: "normal",
+      click: () => {
+        winAbout = new BrowserWindow({
+          minimizable: false,
+          maximizable: false,
+          resizable: false,
+          title: "About VoceChat",
+          width: 400,
+          height: 300,
+          webPreferences: {
+            allowRunningInsecureContent: true,
+            preload,
+            nodeIntegration: true,
+            contextIsolation: false
+          }
+        });
+        if (url) {
+          // electron-vite-vue#298
+          winAbout.webContents.loadURL(`${url}#/about`);
+        } else {
+          winAbout.webContents.loadFile(`${indexHtml}#/about`);
+        }
+      }
+    }
+  ]);
   tray.on("click", function () {
     if (win && win.isVisible() && win.isFocused()) {
       return;
@@ -111,10 +145,13 @@ app.whenReady().then(() => {
     win.show();
     win.focus();
   });
+  tray.on("right-click", function () {
+    tray.popUpContextMenu(contextMenu);
+  });
   tray.setToolTip("VoceChat");
-  tray.setContextMenu(contextMenu);
+  // tray.setContextMenu(contextMenu);
 });
-app.on("before-quit", () => {
+app.on("before-quit", (evt) => {
   console.log("event:before-quit");
   triggerByQuit = true;
 });
@@ -174,20 +211,6 @@ ipcMain.on("remove-view", (event, arg) => {
     Servers.splice(idx, 1);
   }
   console.log("remove-view", arg, idx, Servers);
-});
-// toggle popover
-ipcMain.on("toggle-popover-window", (event, arg) => {
-  console.log(arg);
-  // const {
-  //   visible,
-  //   web_url,
-  //   name = ""
-  // } = arg as { visible: boolean; web_url: string; name?: string };
-  // const currView = ViewMap[web_url];
-  // if (currView) {
-  //   console.log("post msg", visible, name);
-  //   currView.webContents.send("server-name-popover", { visible, name });
-  // }
 });
 // ignore certificate error
 app.commandLine.appendSwitch("ignore-certificate-errors");
