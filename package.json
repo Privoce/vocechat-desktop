@@ -1,6 +1,6 @@
 {
   "name": "vocechat-desktop",
-  "version": "0.6.21",
+  "version": "0.7.0",
   "main": "dist-electron/main/index.js",
   "description": "vocechat desktop version",
   "author": "Tristan <yanggc888@163.com>",
@@ -22,6 +22,7 @@
   "dependencies": {
     "@electron-toolkit/preload": "^2.0.0",
     "@reduxjs/toolkit": "^1.9.5",
+    "@tippyjs/react": "^4.2.6",
     "clsx": "^2.0.0",
     "electron-updater": "^6.1.1",
     "react-contexify": "^6.0.0",
@@ -29,7 +30,8 @@
     "react-router-dom": "^6.14.1",
     "react-tooltip": "^5.18.0",
     "redux-state-sync": "^3.1.4",
-    "rooks": "^7.14.1"
+    "rooks": "^7.14.1",
+    "tippy.js": "^6.3.7"
   },
   "devDependencies": {
     "@ianvs/prettier-plugin-sort-imports": "^4.1.0",
