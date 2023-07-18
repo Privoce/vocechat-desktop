@@ -1,9 +1,7 @@
 import { MouseEvent, useEffect, useState } from "react";
-// import { Item, ItemParams, Menu, useContextMenu } from "react-contexify";
 import { useDispatch } from "react-redux";
 import clsx from "clsx";
 
-import "react-contexify/dist/ReactContexify.css";
 import { switchServer, updateAddModalVisible } from "@/app/slices/data";
 import { useAppSelector } from "@/app/store";
 import { ReactComponent as IconAdd } from "@/assets/icons/add.svg";
@@ -14,17 +12,13 @@ import RemoveServerModal from "./modal-remove-server";
 import { WebviewTag } from "electron";
 import Tippy from "@tippyjs/react";
 import { hideAll } from "tippy.js";
-import ContextMenu from "./context-menu";
+import ContextMenu, { MenuItem } from "./context-menu";
 
-const MENU_ID = "menu-id";
 const Layout = () => {
-  const [removeServer, setRemoveServer] = useState<undefined | string>(undefined);
+  const [removeServer, setRemoveServer] = useState<undefined | string>();
   const [reloadVisible, setReloadVisible] = useState(false);
   const [menuVisibleMap, setMenuVisibleMap] = useState<Record<string, boolean>>({});
   const { servers, active, addModalVisible } = useAppSelector((store) => store.data);
-  // const { show } = useContextMenu({
-  //   id: MENU_ID
-  // });
   const dispatch = useDispatch();
   useEffect(() => {
     if (servers.length == 0) {
@@ -57,18 +51,6 @@ const Layout = () => {
       };
     });
     setReloadVisible(_key == active);
-    // e.preventDefault();
-    // show({
-    //   event: e,
-    //   position: {
-    //     x: e.clientX + 20,
-    //     y: e.clientY
-    //   },
-    //   props: {
-    //     cmd: "DELETE",
-    //     url: e.currentTarget.dataset.url
-    //   }
-    // });
   };
   const hideContextMenu = (_key: string) => {
     setMenuVisibleMap((prev) => {
@@ -110,16 +92,18 @@ const Layout = () => {
             {servers.map((server) => {
               const { web_url, api_url, name } = server;
               const items = [
-                reloadVisible && {
-                  text: "Reload Page",
-                  clickHandler: handleReload
-                },
                 {
                   text: "Remove Server",
                   clickHandler: handleRemove.bind(null, web_url),
                   danger: true
                 }
-              ].filter((itm) => !!itm);
+              ] as MenuItem[];
+              if (reloadVisible) {
+                items.unshift({
+                  text: "Reload Page",
+                  clickHandler: handleReload
+                });
+              }
               return (
                 <Tippy
                   appendTo={document.body}
@@ -134,7 +118,6 @@ const Layout = () => {
                   popperOptions={{ strategy: "fixed" }}
                   // onClickOutside={hide}
                   content={
-                    // @ts-ignore
                     <ContextMenu hideMenu={hideContextMenu.bind(null, web_url)} items={items} />
                   }
                 >

@@ -27,10 +27,17 @@ const dataSlice = createSlice({
       state.active = action.payload.web_url;
     },
     removeServer(state, action: PayloadAction<string>) {
-      const filteredServers=state.servers.filter((server) => server.web_url != action.payload);
-      console.log("remove server",action.payload,filteredServers);
-      
-      state.servers = filteredServers;
+      const _web_url = action.payload;
+      if (state.servers.some((server) => server.web_url == _web_url)) {
+        const filteredServers = state.servers.filter((server) => server.web_url != action.payload);
+        console.log("remove server", action.payload, filteredServers);
+        if (filteredServers.length > 0) {
+          state.active = filteredServers[0].web_url;
+        } else {
+          state.active = "";
+        }
+        state.servers = filteredServers;
+      }
     },
     switchServer(state, action: PayloadAction<string>) {
       state.active = action.payload;

@@ -3,7 +3,7 @@
 import clsx from "clsx";
 // import { hideAll } from "tippy.js";
 
-type MenuItem = {
+export type MenuItem = {
   text: string;
   clickHandler?: () => void;
   danger?: boolean;
