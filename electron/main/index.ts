@@ -53,6 +53,7 @@ async function createWindow() {
     // title: "",
     icon: join(process.env.PUBLIC, "favicon.ico"),
     webPreferences: {
+      devTools: process.env.NODE_ENV === "development",
       webviewTag: true,
       allowRunningInsecureContent: true,
       preload,
@@ -116,6 +117,7 @@ app.whenReady().then(() => {
           width: 400,
           height: 400,
           webPreferences: {
+            devTools: process.env.NODE_ENV === "development",
             allowRunningInsecureContent: true,
             preload,
             nodeIntegration: true,
