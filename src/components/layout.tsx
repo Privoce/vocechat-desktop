@@ -155,12 +155,12 @@ const Layout = () => {
             })}
           </ul>
           <ServerTip content={"Add server"}>
-            <div className="app-no-drag group flex h-9 w-9 cursor-pointer items-center justify-center rounded hover:bg-gray-500/50">
-              <IconAdd
-                role="button"
-                className="cursor-pointer outline-none group-hover:fill-white"
-                onClick={handleAddServer}
-              />
+            <div
+              role="button"
+              onClick={handleAddServer}
+              className="app-no-drag group flex h-9 w-9 cursor-pointer items-center justify-center rounded hover:bg-gray-500/50"
+            >
+              <IconAdd className="outline-none group-hover:fill-white" />
             </div>
           </ServerTip>
         </aside>
