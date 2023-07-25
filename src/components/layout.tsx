@@ -1,10 +1,14 @@
-import { MouseEvent, useEffect, useState } from "react";
+import { MouseEvent, useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import clsx from "clsx";
-
+import { motion } from "framer-motion";
 import { switchServer, updateAddModalVisible } from "@/app/slices/data";
 import { useAppSelector } from "@/app/store";
 import { ReactComponent as IconAdd } from "@/assets/icons/add.svg";
+// import { ReactComponent as IconDrag } from "@/assets/icons/drag.svg";
+import { ReactComponent as IconRefresh } from "@/assets/icons/refresh.svg";
+import { ReactComponent as IconLeft } from "@/assets/icons/arrow.left.svg";
+import { ReactComponent as IconRight } from "@/assets/icons/arrow.right.svg";
 // import { isDarkMode } from "@/utils";
 import ServerTip from "./server-tip";
 import AddServerModal from "./modal-add-server";
@@ -15,23 +19,46 @@ import { hideAll } from "tippy.js";
 import ContextMenu, { MenuItem } from "./context-menu";
 
 const Layout = () => {
+  const webviewContainerRef = useRef(null);
   const [removeServer, setRemoveServer] = useState<undefined | string>();
   const [reloadVisible, setReloadVisible] = useState(false);
   const [menuVisibleMap, setMenuVisibleMap] = useState<Record<string, boolean>>({});
   const { servers, active, addModalVisible } = useAppSelector((store) => store.data);
   const dispatch = useDispatch();
+  // const dragControls = useDragControls();
   useEffect(() => {
     if (servers.length == 0) {
       handleAddServer();
     }
   }, [servers]);
-
+  // const startDrag = (event: any) => {
+  //   dragControls.start(event, { snapToCursor: true });
+  // };
   const handleSwitch = (evt: MouseEvent<HTMLLIElement>) => {
     console.log("switch");
     const { url } = evt.currentTarget.dataset;
     if (url == active) return;
     if (url) {
       dispatch(switchServer(url));
+    }
+  };
+  const handleWebviewNav = (cmd: "back" | "forward" | "refresh") => {
+    const wv = document.querySelector("webview[data-visible='true']") as WebviewTag;
+    if (wv) {
+      switch (cmd) {
+        case "back":
+          wv.goBack();
+          break;
+        case "forward":
+          wv.goForward();
+          break;
+        case "refresh":
+          wv.reload();
+          break;
+
+        default:
+          break;
+      }
     }
   };
   const handleAddServer = () => {
@@ -106,6 +133,7 @@ const Layout = () => {
               }
               return (
                 <Tippy
+                  key={web_url}
                   appendTo={document.body}
                   offset={[-20, 34]}
                   onClickOutside={hideContextMenu.bind(null, web_url)}
@@ -164,7 +192,10 @@ const Layout = () => {
             </div>
           </ServerTip>
         </aside>
-        <main className="relative flex h-full flex-1 items-center justify-center">
+        <motion.main
+          ref={webviewContainerRef}
+          className="relative flex h-full flex-1 items-center justify-center"
+        >
           {servers.map((server) => {
             const { web_url } = server;
 
@@ -176,18 +207,51 @@ const Layout = () => {
                 //@ts-ignore
                 //eslint-disable-next-line react/no-unknown-property
                 disablewebsecurity="true"
-                useragent={`${navigator.userAgent} ${process.platform}`}
+                key={web_url}
                 className={clsx(
                   "absolute left-0 top-0 h-full w-full",
                   active == web_url ? "visible" : "invisible"
                 )}
+                useragent={`${navigator.userAgent} ${process.platform}`}
                 data-visible={active == web_url}
-                key={web_url}
                 src={web_url}
               ></webview>
             );
           })}
-        </main>
+          <motion.div
+            drag
+            // dragControls={dragControls}
+            dragListener={false}
+            dragConstraints={webviewContainerRef}
+            dragElastic={false}
+            dragMomentum={false}
+            className="group  absolute bottom-1 left-1/2 flex -translate-x-1/2 flex-col items-center opacity-50 hover:opacity-100"
+          >
+            {/* <button onPointerDown={startDrag} className="invisible cursor-move group-hover:visible">
+              <IconDrag className="h-4 w-4 dark:stroke-gray-200" />
+            </button> */}
+            <div className="flex overflow-hidden rounded-lg border border-gray-500">
+              <button
+                onClick={handleWebviewNav.bind(null, "back")}
+                className=" px-2 py-1 hover:bg-gray-500"
+              >
+                <IconLeft className="dark:stroke-gray-200" />
+              </button>
+              <button
+                onClick={handleWebviewNav.bind(null, "refresh")}
+                className=" px-2 py-1 hover:bg-gray-500"
+              >
+                <IconRefresh className="dark:stroke-gray-200" />
+              </button>
+              <button
+                onClick={handleWebviewNav.bind(null, "forward")}
+                className=" px-2 py-1 hover:bg-gray-500"
+              >
+                <IconRight className="dark:stroke-gray-200" />
+              </button>
+            </div>
+          </motion.div>
+        </motion.main>
 
         {contextMenuVisible ? (
           <div className="menu-mask fixed left-0 top-0 z-10 h-full w-full"></div>

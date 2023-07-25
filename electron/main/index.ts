@@ -128,7 +128,9 @@ app.whenReady().then(() => {
           // electron-vite-vue#298
           winAbout.webContents.loadURL(`${url}#/about`);
         } else {
-          winAbout.webContents.loadFile(`${indexHtml}#/about`);
+          winAbout.webContents.loadFile(`${indexHtml}`, {
+            hash: "/about"
+          });
         }
       }
     },
