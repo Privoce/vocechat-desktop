@@ -41,8 +41,8 @@ const indexHtml = join(process.env.DIST, "index.html");
 const Servers: VocechatServer[] = readUserData();
 async function createWindow() {
   win = new BrowserWindow({
-    titleBarStyle: "hidden",
-    titleBarOverlay: true,
+    titleBarStyle: process.platform == "darwin" ? "hidden" : "default",
+    titleBarOverlay: process.platform == "darwin",
     frame: false,
     minWidth: 800,
     minHeight: 600,
@@ -50,7 +50,7 @@ async function createWindow() {
     height: 800,
     backgroundColor: "transparent",
     // useContentSize: true,
-    // title: "",
+    title: process.platform == "darwin" ? undefined : "VoceChat",
     icon: join(process.env.PUBLIC, "favicon.ico"),
     webPreferences: {
       devTools: process.env.NODE_ENV === "development",

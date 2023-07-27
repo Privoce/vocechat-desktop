@@ -19,21 +19,16 @@ import { hideAll } from "tippy.js";
 import ContextMenu, { MenuItem } from "./context-menu";
 
 const Layout = () => {
-  const webviewContainerRef = useRef(null);
   const [removeServer, setRemoveServer] = useState<undefined | string>();
   const [reloadVisible, setReloadVisible] = useState(false);
   const [menuVisibleMap, setMenuVisibleMap] = useState<Record<string, boolean>>({});
   const { servers, active, addModalVisible } = useAppSelector((store) => store.data);
   const dispatch = useDispatch();
-  // const dragControls = useDragControls();
   useEffect(() => {
     if (servers.length == 0) {
       handleAddServer();
     }
   }, [servers]);
-  // const startDrag = (event: any) => {
-  //   dragControls.start(event, { snapToCursor: true });
-  // };
   const handleSwitch = (evt: MouseEvent<HTMLLIElement>) => {
     console.log("switch");
     const { url } = evt.currentTarget.dataset;
@@ -42,32 +37,13 @@ const Layout = () => {
       dispatch(switchServer(url));
     }
   };
-  const handleWebviewNav = (cmd: "back" | "forward" | "refresh") => {
-    const wv = document.querySelector("webview[data-visible='true']") as WebviewTag;
-    if (wv) {
-      switch (cmd) {
-        case "back":
-          wv.goBack();
-          break;
-        case "forward":
-          wv.goForward();
-          break;
-        case "refresh":
-          wv.reload();
-          break;
-
-        default:
-          break;
-      }
-    }
-  };
   const handleAddServer = () => {
     dispatch(updateAddModalVisible(true));
   };
   const handleReload = () => {
     const wv = document.querySelector("webview[data-visible='true']") as WebviewTag;
-    if (wv) {
-      wv.reload();
+    if (wv && wv.dataset.src) {
+      wv.loadURL(wv.dataset.src);
     }
   };
   const showContextMenu = (_key: string) => {
@@ -112,7 +88,7 @@ const Layout = () => {
           className={clsx(
             "flex h-full w-[66px] flex-col items-center gap-3 bg-neutral-200 dark:bg-gray-900",
             contextMenuVisible ? "" : "app-drag",
-            process.platform == "win32" ? "pt-4" : "pt-8"
+            process.platform == "darwin" ? "pt-8" : "pt-0"
           )}
         >
           <ul className="flex flex-col gap-2 py-1 text-lg text-gray-900 dark:text-gray-100">
@@ -191,11 +167,18 @@ const Layout = () => {
               <IconAdd className="outline-none group-hover:fill-white" />
             </div>
           </ServerTip>
+          <div className="my-1 h-[1px] w-9 bg-gray-300/50"></div>
+          <ServerTip content={"Refresh page"}>
+            <div
+              role="button"
+              onClick={handleReload}
+              className="app-no-drag group flex h-9 w-9 cursor-pointer items-center justify-center rounded hover:bg-gray-500/50"
+            >
+              <IconRefresh className="outline-none group-hover:stroke-white" />
+            </div>
+          </ServerTip>
         </aside>
-        <motion.main
-          ref={webviewContainerRef}
-          className="relative flex h-full flex-1 items-center justify-center"
-        >
+        <motion.main className="relative flex h-full flex-1 items-center justify-center">
           {servers.map((server) => {
             const { web_url } = server;
 
@@ -214,43 +197,11 @@ const Layout = () => {
                 )}
                 useragent={`${navigator.userAgent} ${process.platform}`}
                 data-visible={active == web_url}
+                data-src={web_url}
                 src={web_url}
               ></webview>
             );
           })}
-          <motion.div
-            drag
-            // dragControls={dragControls}
-            dragListener={false}
-            dragConstraints={webviewContainerRef}
-            dragElastic={false}
-            dragMomentum={false}
-            className="group  absolute bottom-1 left-1/2 flex -translate-x-1/2 flex-col items-center opacity-50 hover:opacity-100"
-          >
-            {/* <button onPointerDown={startDrag} className="invisible cursor-move group-hover:visible">
-              <IconDrag className="h-4 w-4 dark:stroke-gray-200" />
-            </button> */}
-            <div className="flex overflow-hidden rounded-lg border border-gray-500">
-              <button
-                onClick={handleWebviewNav.bind(null, "back")}
-                className=" px-2 py-1 hover:bg-gray-500"
-              >
-                <IconLeft className="dark:stroke-gray-200" />
-              </button>
-              <button
-                onClick={handleWebviewNav.bind(null, "refresh")}
-                className=" px-2 py-1 hover:bg-gray-500"
-              >
-                <IconRefresh className="dark:stroke-gray-200" />
-              </button>
-              <button
-                onClick={handleWebviewNav.bind(null, "forward")}
-                className=" px-2 py-1 hover:bg-gray-500"
-              >
-                <IconRight className="dark:stroke-gray-200" />
-              </button>
-            </div>
-          </motion.div>
         </motion.main>
 
         {contextMenuVisible ? (
