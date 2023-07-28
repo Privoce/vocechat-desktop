@@ -91,7 +91,7 @@ const Layout = () => {
             process.platform == "darwin" ? "pt-8" : "pt-0"
           )}
         >
-          <ul className="flex flex-col gap-2 py-1 text-lg text-gray-900 dark:text-gray-100">
+          <ul className="flex w-full flex-col gap-2 py-1 text-lg text-gray-900 dark:text-gray-100">
             {servers.map((server) => {
               const { web_url, api_url, name } = server;
               const items = [
@@ -128,7 +128,9 @@ const Layout = () => {
                   <li
                     // role="button"
                     key={web_url}
-                    className={clsx("app-no-drag group relative w-full cursor-pointer px-3")}
+                    className={clsx(
+                      "app-no-drag group relative flex w-full cursor-pointer justify-center px-3"
+                    )}
                     data-url={web_url}
                     onClick={handleSwitch}
                     onContextMenu={showContextMenu.bind(null, web_url)}
@@ -172,7 +174,7 @@ const Layout = () => {
             <div
               role="button"
               onClick={handleReload}
-              className="app-no-drag group flex h-9 w-9 cursor-pointer items-center justify-center rounded hover:bg-gray-500/50"
+              className="app-no-drag  group flex h-9 w-9 cursor-pointer items-center justify-center rounded hover:bg-gray-500/50"
             >
               <IconRefresh className="outline-none group-hover:stroke-white" />
             </div>
