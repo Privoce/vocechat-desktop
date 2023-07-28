@@ -42,7 +42,7 @@ const Servers: VocechatServer[] = readUserData();
 async function createWindow() {
   win = new BrowserWindow({
     titleBarStyle: "hidden",
-    titleBarOverlay: true,
+    // titleBarOverlay: true,
     frame: false,
     minWidth: 800,
     minHeight: 600,
