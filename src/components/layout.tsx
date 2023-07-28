@@ -15,6 +15,7 @@ import { WebviewTag } from "electron";
 import Tippy from "@tippyjs/react";
 import { hideAll } from "tippy.js";
 import ContextMenu, { MenuItem } from "./context-menu";
+import TitleBar from "./titlebar";
 
 const Layout = () => {
   const [removeServer, setRemoveServer] = useState<undefined | string>();
@@ -81,6 +82,7 @@ const Layout = () => {
   const contextMenuVisible = Object.values(menuVisibleMap).some((v) => v);
   return (
     <>
+      {process.platform == "darwin" && <TitleBar />}
       <section className="flex h-screen select-none bg-transparent">
         <aside
           className={clsx(
@@ -206,11 +208,9 @@ const Layout = () => {
 
         {contextMenuVisible ? (
           <div className="menu-mask fixed left-0 top-0 z-10 h-full w-full"></div>
-        ) : (
-          process.platform == "darwin" && (
-            <div className="app-drag fixed left-0 top-0 z-50 h-6 w-full"></div>
-          )
-        )}
+        ) : process.platform == "darwin" ? (
+          <div className="app-drag fixed left-0 top-0 z-50 h-6 w-full"></div>
+        ) : null}
       </section>
       {!!removeServer && (
         <RemoveServerModal

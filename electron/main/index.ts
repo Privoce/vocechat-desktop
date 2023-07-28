@@ -41,24 +41,14 @@ const indexHtml = join(process.env.DIST, "index.html");
 const Servers: VocechatServer[] = readUserData();
 async function createWindow() {
   win = new BrowserWindow({
-    titleBarStyle: process.platform == "darwin" ? "hidden" : "default",
-    titleBarOverlay:
-      process.platform == "darwin"
-        ? true
-        : {
-            height: 48,
-            color: "#E5E7EB"
-          },
-    autoHideMenuBar: true,
-    frame: process.platform !== "darwin",
+    titleBarStyle: "hidden",
+    titleBarOverlay: true,
+    frame: false,
     minWidth: 800,
     minHeight: 600,
     width: 1200,
     height: 800,
-    // maxWidth: 1200,
-    // maxHeight: 800,
     backgroundColor: "transparent",
-    resizable: false,
     // transparent: true,
     // useContentSize: true,
     title: process.platform == "darwin" ? undefined : "VoceChat",
@@ -75,10 +65,6 @@ async function createWindow() {
       contextIsolation: false
     }
   });
-  // workaround https://github.com/electron/electron/issues/30788
-  setTimeout(() => {
-    win.setResizable(true);
-  }, 5000);
   win.on("close", (e) => {
     console.log("event:close", e);
     if (!triggerByQuit) {
@@ -222,6 +208,28 @@ ipcMain.on("show-data-file", () => {
   console.log("show-data-file", USER_DATA_PATH);
   shell.showItemInFolder(USER_DATA_PATH);
 });
+// controls from non-macOS
+ipcMain.on("control-mini", () => {
+  console.log("control-mini");
+  win.minimize();
+});
+ipcMain.on("control-max", () => {
+  console.log("control-max");
+  if (win.isMaximized()) {
+    win.unmaximize();
+  } else {
+    win.maximize();
+  }
+});
+ipcMain.on("control-close", () => {
+  console.log("control-close");
+  win.hide();
+});
+ipcMain.on("control-fullscreen", () => {
+  console.log("control-fullscreen");
+  win.setFullScreen(!win.isFullScreen());
+});
+
 ipcMain.on("add-server", (event, arg) => {
   console.log("add-server", arg);
   const { data } = arg;
