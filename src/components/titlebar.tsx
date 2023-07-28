@@ -26,6 +26,7 @@ const TitleBar = () => {
         break;
     }
   };
+  const btnClass = "outline-none rounded-sm p-3 hover:bg-gray-200 dark:hover:bg-gray-800";
   return (
     <header
       onDoubleClick={handleControl.bind(null, "max")}
@@ -34,22 +35,13 @@ const TitleBar = () => {
       <img className="h-5 w-5" src={IconLogo} />
       <span className="text-sm text-gray-800 dark:text-gray-200">VoceChat</span>
       <div className="app-no-drag absolute right-3.5 top-1/2 flex -translate-y-1/2 items-center">
-        <button
-          onClick={handleControl.bind(null, "mini")}
-          className="rounded-sm p-3 hover:bg-gray-200 dark:hover:bg-gray-800"
-        >
+        <button onClick={handleControl.bind(null, "mini")} className={btnClass}>
           <IconMini className="dark:fill-gray-100" />
         </button>
-        <button
-          onClick={handleControl.bind(null, "fullscreen")}
-          className="rounded-sm p-3 hover:bg-gray-200 dark:hover:bg-gray-800"
-        >
+        <button onClick={handleControl.bind(null, "fullscreen")} className={btnClass}>
           <IconMax className="dark:fill-gray-100" />
         </button>
-        <button
-          onClick={handleControl.bind(null, "close")}
-          className="rounded-sm p-3 hover:bg-gray-200 dark:hover:bg-gray-800"
-        >
+        <button onClick={handleControl.bind(null, "close")} className={btnClass}>
           <IconClose className="dark:fill-gray-100" />
         </button>
       </div>

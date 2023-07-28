@@ -79,16 +79,22 @@ const Layout = () => {
       </>
     );
   }
+  const isMac = process.platform == "darwin";
   const contextMenuVisible = Object.values(menuVisibleMap).some((v) => v);
   return (
     <>
-      {process.platform == "darwin" && <TitleBar />}
-      <section className="flex h-screen select-none bg-transparent">
+      {!isMac && <TitleBar />}
+      <section
+        className={clsx(
+          "flex select-none bg-transparent",
+          isMac ? "h-screen" : "h-[calc(100vh_-_48px)]"
+        )}
+      >
         <aside
           className={clsx(
             "flex h-full w-[66px] flex-col items-center gap-3 bg-neutral-200 dark:bg-gray-900",
             contextMenuVisible ? "" : "app-drag",
-            process.platform == "darwin" ? "pt-8" : "pt-0"
+            isMac ? "pt-8" : "pt-1"
           )}
         >
           <ul className="flex w-full flex-col gap-2 py-1 text-lg text-gray-900 dark:text-gray-100">
@@ -208,7 +214,7 @@ const Layout = () => {
 
         {contextMenuVisible ? (
           <div className="menu-mask fixed left-0 top-0 z-10 h-full w-full"></div>
-        ) : process.platform == "darwin" ? (
+        ) : isMac ? (
           <div className="app-drag fixed left-0 top-0 z-50 h-6 w-full"></div>
         ) : null}
       </section>

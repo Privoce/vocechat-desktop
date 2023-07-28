@@ -110,6 +110,7 @@ app.whenReady().then(() => {
       click: () => {
         winAbout = new BrowserWindow({
           // alwaysOnTop: true,
+          autoHideMenuBar: true,
           movable: false,
           minimizable: false,
           maximizable: false,
