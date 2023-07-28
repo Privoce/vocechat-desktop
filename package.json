@@ -12,7 +12,7 @@
     }
   },
   "scripts": {
-    "dev": "NODE_ENV=development vite",
+    "dev": "vite",
     "build": "tsc && vite build",
     "build:local": "tsc && vite build && electron-builder",
     "release": "electron-builder",
