@@ -55,7 +55,10 @@ async function createWindow() {
     minHeight: 600,
     width: 1200,
     height: 800,
+    // maxWidth: 1200,
+    // maxHeight: 800,
     backgroundColor: "transparent",
+    resizable: false,
     // transparent: true,
     // useContentSize: true,
     title: process.platform == "darwin" ? undefined : "VoceChat",
@@ -72,6 +75,10 @@ async function createWindow() {
       contextIsolation: false
     }
   });
+  // workaround https://github.com/electron/electron/issues/30788
+  setTimeout(() => {
+    win.setResizable(true);
+  }, 5000);
   win.on("close", (e) => {
     console.log("event:close", e);
     if (!triggerByQuit) {

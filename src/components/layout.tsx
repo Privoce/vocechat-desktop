@@ -1,4 +1,4 @@
-import { MouseEvent, useEffect, useRef, useState } from "react";
+import { MouseEvent, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import clsx from "clsx";
 import { motion } from "framer-motion";
@@ -7,8 +7,6 @@ import { useAppSelector } from "@/app/store";
 import { ReactComponent as IconAdd } from "@/assets/icons/add.svg";
 // import { ReactComponent as IconDrag } from "@/assets/icons/drag.svg";
 import { ReactComponent as IconRefresh } from "@/assets/icons/refresh.svg";
-import { ReactComponent as IconLeft } from "@/assets/icons/arrow.left.svg";
-import { ReactComponent as IconRight } from "@/assets/icons/arrow.right.svg";
 // import { isDarkMode } from "@/utils";
 import ServerTip from "./server-tip";
 import AddServerModal from "./modal-add-server";
@@ -209,7 +207,9 @@ const Layout = () => {
         {contextMenuVisible ? (
           <div className="menu-mask fixed left-0 top-0 z-10 h-full w-full"></div>
         ) : (
-          <div className="app-drag fixed left-0 top-0 z-50 h-6 w-full"></div>
+          process.platform == "darwin" && (
+            <div className="app-drag fixed left-0 top-0 z-50 h-6 w-full"></div>
+          )
         )}
       </section>
       {!!removeServer && (
