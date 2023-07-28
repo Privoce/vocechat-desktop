@@ -42,7 +42,14 @@ const Servers: VocechatServer[] = readUserData();
 async function createWindow() {
   win = new BrowserWindow({
     titleBarStyle: process.platform == "darwin" ? "hidden" : "default",
-    titleBarOverlay: process.platform == "darwin",
+    titleBarOverlay:
+      process.platform == "darwin"
+        ? true
+        : {
+            height: 48,
+            color: "#E5E7EB"
+          },
+    autoHideMenuBar: true,
     frame: process.platform !== "darwin",
     minWidth: 800,
     minHeight: 600,
