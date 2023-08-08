@@ -3,7 +3,8 @@ import { join } from "node:path";
 // import NodeURL from "node:url";
 import { app, BrowserWindow, desktopCapturer, ipcMain, Menu, shell, Tray } from "electron";
 import { VocechatServer } from "@/types/common";
-import { readUserData, USER_DATA_PATH, writeUserData } from "./user-data";
+import { readUserData, USER_DATA_PATH, USER_LOG_PATH, writeUserData } from "./user-data";
+import logger from "./logger";
 
 // import { update } from "./update";
 
@@ -195,6 +196,12 @@ app.on("activate", () => {
     createWindow();
   }
 });
+ipcMain.on("vocechat-logging", (evt, arg) => {
+  console.log("handle:vocechat-logging", arg);
+
+  logger.error(JSON.stringify(arg));
+  // return true;
+});
 // Event handler for asynchronous incoming messages
 // init redux store
 ipcMain.handle("init-servers", () => {
@@ -205,9 +212,18 @@ ipcMain.handle("data-file-path", () => {
   console.log("handle:data-file-path", USER_DATA_PATH);
   return USER_DATA_PATH;
 });
-ipcMain.on("show-data-file", () => {
-  console.log("show-data-file", USER_DATA_PATH);
-  shell.showItemInFolder(USER_DATA_PATH);
+ipcMain.on("show-file", (evt, arg) => {
+  console.log("show-file", arg);
+  switch (arg) {
+    case "data":
+      shell.showItemInFolder(USER_DATA_PATH);
+      break;
+    case "log":
+      shell.showItemInFolder(USER_LOG_PATH);
+      break;
+    default:
+      break;
+  }
 });
 // controls from non-macOS
 ipcMain.on("control-mini", () => {

@@ -2,8 +2,13 @@
 import fs from "fs";
 import path from "path";
 import { app } from "electron";
-
+const date = new Date();
+const d = date.getDate();
+const m = date.getMonth() + 1;
 export const USER_DATA_PATH = path.join(app.getPath("userData"), "server_list.json");
+export const USER_LOG_PATH = path.join(app.getPath("userData"), "log/");
+export const USER_ERROR_LOG_FILE = path.join(USER_LOG_PATH, `error-${m}-${d}.log`);
+export const USER_LOG_FILE = path.join(USER_LOG_PATH, `combined-${m}-${d}.log`);
 
 export function readUserData() {
   try {

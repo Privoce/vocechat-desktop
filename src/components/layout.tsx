@@ -5,18 +5,22 @@ import { motion } from "framer-motion";
 import { switchServer, updateAddModalVisible } from "@/app/slices/data";
 import { useAppSelector } from "@/app/store";
 import { ReactComponent as IconAdd } from "@/assets/icons/add.svg";
-// import { ReactComponent as IconDrag } from "@/assets/icons/drag.svg";
 import { ReactComponent as IconRefresh } from "@/assets/icons/refresh.svg";
-// import { isDarkMode } from "@/utils";
+import { ReactComponent as IconDebug } from "@/assets/icons/debug.svg";
 import ServerTip from "./server-tip";
 import AddServerModal from "./modal-add-server";
 import RemoveServerModal from "./modal-remove-server";
-import { WebviewTag } from "electron";
+import { WebviewTag, ipcRenderer } from "electron";
 import Tippy from "@tippyjs/react";
 import { hideAll } from "tippy.js";
 import ContextMenu, { MenuItem } from "./context-menu";
 import TitleBar from "./titlebar";
-
+// const LevelMap = {
+//   0: "verbose",
+//   1: "info",
+//   2: "warning",
+//   3: "error"
+// };
 const Layout = () => {
   const [removeServer, setRemoveServer] = useState<undefined | string>();
   const [reloadVisible, setReloadVisible] = useState(false);
@@ -26,6 +30,22 @@ const Layout = () => {
   useEffect(() => {
     if (servers.length == 0) {
       handleAddServer();
+    } else {
+      const webviews = [...document.querySelectorAll("webview")] as WebviewTag[];
+      webviews.forEach((webview) => {
+        webview.addEventListener("dom-ready", () => {
+          const url = webview.dataset.src;
+          console.log(`${url} dom-ready`);
+        });
+        webview.addEventListener("console-message", (e) => {
+          const { level, message, sourceId } = e;
+          if (level == 3) {
+            //  error
+            // console.log("Guest page logged a message:", message, sourceId);
+            ipcRenderer.send("vocechat-logging", { level, message, sourceId });
+          }
+        });
+      });
     }
   }, [servers]);
   const handleSwitch = (evt: MouseEvent<HTMLLIElement>) => {
@@ -43,6 +63,12 @@ const Layout = () => {
     const wv = document.querySelector("webview[data-visible='true']") as WebviewTag;
     if (wv && wv.dataset.src) {
       wv.loadURL(wv.dataset.src);
+    }
+  };
+  const handleOpenWebviewDevTools = () => {
+    const wv = document.querySelector("webview[data-visible='true']") as WebviewTag;
+    if (wv && wv.dataset.src) {
+      wv.openDevTools();
     }
   };
   const showContextMenu = (_key: string) => {
@@ -92,6 +118,7 @@ const Layout = () => {
       >
         <aside
           className={clsx(
+            "relative",
             "flex h-full w-[66px] flex-col items-center gap-3 bg-neutral-200 dark:bg-gray-900",
             contextMenuVisible ? "" : "app-drag",
             isMac ? "pt-8" : "pt-1"
@@ -185,6 +212,13 @@ const Layout = () => {
               <IconRefresh className="outline-none group-hover:stroke-white" />
             </div>
           </ServerTip>
+          <button
+            title="Open DevTools"
+            onClick={handleOpenWebviewDevTools}
+            className="app-no-drag group absolute bottom-2 left-4 flex h-9 w-9 cursor-pointer items-center justify-center rounded  hover:bg-gray-500/50"
+          >
+            <IconDebug className="invisible outline-none group-hover:visible group-hover:stroke-white" />
+          </button>
         </aside>
         <motion.main className="relative flex h-full flex-1 items-center justify-center">
           {servers.map((server) => {
