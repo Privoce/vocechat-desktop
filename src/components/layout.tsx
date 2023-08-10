@@ -24,6 +24,7 @@ import TitleBar from "./titlebar";
 const Layout = () => {
   const [removeServer, setRemoveServer] = useState<undefined | string>();
   const [reloadVisible, setReloadVisible] = useState(false);
+  const [reloading, setReloading] = useState(false);
   const [menuVisibleMap, setMenuVisibleMap] = useState<Record<string, boolean>>({});
   const { servers, active, addModalVisible } = useAppSelector((store) => store.data);
   const dispatch = useDispatch();
@@ -33,6 +34,18 @@ const Layout = () => {
     } else {
       const webviews = [...document.querySelectorAll("webview")] as WebviewTag[];
       webviews.forEach((webview) => {
+        webview.addEventListener("did-finish-load", () => {
+          if (webview.dataset?.visible == "true") {
+            console.log("load finish reloading false", webview.src);
+            setReloading(false);
+          }
+        });
+        webview.addEventListener("did-fail-load", () => {
+          if (webview.dataset?.visible == "true") {
+            console.log("load fail reloading false", webview.src);
+            setReloading(false);
+          }
+        });
         webview.addEventListener("dom-ready", () => {
           const url = webview.dataset.src;
           console.log(`${url} dom-ready`);
@@ -61,8 +74,10 @@ const Layout = () => {
   };
   const handleReload = () => {
     const wv = document.querySelector("webview[data-visible='true']") as WebviewTag;
-    if (wv && wv.dataset.src) {
-      wv.loadURL(wv.dataset.src);
+    if (wv) {
+      wv.reloadIgnoringCache();
+      setReloading(true);
+      // wv.loadURL(wv.dataset.src);
     }
   };
   const handleOpenWebviewDevTools = () => {
@@ -204,18 +219,23 @@ const Layout = () => {
           </ServerTip>
           <div className="my-1 h-[1px] w-9 bg-gray-300/50"></div>
           <ServerTip content={"Refresh page"}>
-            <div
-              role="button"
+            <button
+              disabled={reloading}
               onClick={handleReload}
               className="app-no-drag  group flex h-9 w-9 cursor-pointer items-center justify-center rounded hover:bg-gray-500/50"
             >
-              <IconRefresh className="outline-none group-hover:stroke-white" />
-            </div>
+              <IconRefresh
+                className={clsx(
+                  "outline-none group-hover:stroke-white",
+                  reloading ? "animate-spin opacity-80" : ""
+                )}
+              />
+            </button>
           </ServerTip>
           <button
             title="Open DevTools"
             onClick={handleOpenWebviewDevTools}
-            className="app-no-drag group absolute bottom-2 left-4 flex h-9 w-9 cursor-pointer items-center justify-center rounded  hover:bg-gray-500/50"
+            className="app-no-drag group absolute bottom-4 left-4 flex h-9 w-9 cursor-pointer items-center justify-center rounded  hover:bg-gray-500/50"
           >
             <IconDebug className="invisible outline-none group-hover:visible group-hover:stroke-white" />
           </button>
