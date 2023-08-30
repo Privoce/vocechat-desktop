@@ -1,5 +1,5 @@
 import { electronAPI } from "@electron-toolkit/preload";
-import { contextBridge, ipcRenderer } from "electron";
+import { contextBridge } from "electron";
 
 // ipcRenderer.on("server-name-popover", (_, arg) => {
 //   console.log("server-name-popover", arg);

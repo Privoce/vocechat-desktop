@@ -34,6 +34,13 @@ const Layout = () => {
     } else {
       const webviews = [...document.querySelectorAll("webview")] as WebviewTag[];
       webviews.forEach((webview) => {
+        webview.addEventListener("did-change-theme-color", (evt) => {
+          console.log("theme color changed", evt.themeColor);
+          // 约定的主题色
+          if (evt.themeColor == "#123456") {
+            handleReload();
+          }
+        });
         webview.addEventListener("did-finish-load", () => {
           if (webview.dataset?.visible == "true") {
             console.log("load finish reloading false", webview.src);
