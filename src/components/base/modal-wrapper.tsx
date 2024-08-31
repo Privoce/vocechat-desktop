@@ -5,7 +5,7 @@ interface Props {
   id?: string;
   mask?: boolean;
 }
-
+// @ts-ignore
 const ModalWrapper: FC<PropsWithChildren<Props>> = ({
   id = "root-modal",
   mask = true,

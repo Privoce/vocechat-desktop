@@ -1,6 +1,7 @@
 import { createListenerMiddleware } from "@reduxjs/toolkit";
 import { ipcRenderer } from "electron";
 import { RootState } from "../store";
+import { VocechatServer } from "@/types/common";
 
 const operations = ["__rtkq", "data"];
 
@@ -21,6 +22,7 @@ listenerMiddleware.startListening({
   },
   effect: async (action) => {
     const { type = "", payload } = action;
+    // @ts-ignore
     const [prefix, operation]: [keyof RootState | "__rtkq", string] = type.split("/");
     // console.log("effect opt", action);
     // const currentState = listenerApi.getState() as RootState;
@@ -41,7 +43,7 @@ listenerMiddleware.startListening({
           switch (operation) {
             case "initializeServers":
               {
-                const servers = payload ?? [];
+                const servers = (payload ?? []) as VocechatServer[];
                 if (servers.length > 0) {
                   ipcRenderer.send("switch-server", { url: servers[0]?.web_url });
                   console.log("effect initializeServers");

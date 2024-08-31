@@ -30,6 +30,7 @@ const reducer = combineReducers({
 
 const store = configureStore({
   reducer: withReduxStateSync(reducer),
+  // @ts-ignore
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware()
       .concat(dataApi.middleware, middlewareList)
