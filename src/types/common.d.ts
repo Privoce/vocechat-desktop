@@ -9,7 +9,7 @@ export type VocechatServer = {
   version?: string;
 };
 export declare global {
-interface Window{
-  electron?:ElectronAPI
-}
+  interface Window {
+    electron?: ElectronAPI;
+  }
 }

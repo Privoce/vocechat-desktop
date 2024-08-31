@@ -8,8 +8,8 @@ import {
 } from "@/app/services/data";
 import { addServer, switchServer, updateAddModalVisible } from "@/app/slices/data";
 import { useAppSelector } from "@/app/store";
-import { ReactComponent as IconClose } from "@/assets/icons/close.svg";
-import { ReactComponent as InfoIcon } from "@/assets/icons/info.svg";
+import IconClose from "@/assets/icons/close.svg?react";
+import InfoIcon from "@/assets/icons/info.svg?react";
 import { getServerUrl } from "@/utils";
 import Button from "./base/button";
 import Input from "./base/input";

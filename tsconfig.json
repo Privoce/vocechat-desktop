@@ -18,7 +18,8 @@
     "baseUrl": "./",
     "paths": {
       "@/*": ["src/*"]
-    }
+    },
+    "types": ["vite/client", "vite-plugin-svgr/client"]
   },
   "include": ["src/types", "src", "electron"],
   "references": [{ "path": "./tsconfig.node.json" }]

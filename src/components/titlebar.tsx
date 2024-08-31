@@ -1,8 +1,8 @@
 // import React from "react";
 import IconLogo from "@/assets/icon.png";
-import { ReactComponent as IconClose } from "@/assets/icons/ctl.close.svg";
-import { ReactComponent as IconMini } from "@/assets/icons/ctl.mini.svg";
-import { ReactComponent as IconMax } from "@/assets/icons/ctl.max.svg";
+import IconClose from "@/assets/icons/ctl.close.svg?react";
+import IconMini from "@/assets/icons/ctl.mini.svg?react";
+import IconMax from "@/assets/icons/ctl.max.svg?react";
 import { ipcRenderer } from "electron";
 // type Props = {}
 

@@ -5,11 +5,13 @@ export interface StoredData {
   servers: VocechatServer[];
   active: string;
   addModalVisible: boolean;
+  newMsgMap: Record<string, boolean>;
 }
 const initialState: StoredData = {
   servers: [],
   active: "",
-  addModalVisible: false
+  addModalVisible: false,
+  newMsgMap: {}
 };
 
 const dataSlice = createSlice({
@@ -44,10 +46,20 @@ const dataSlice = createSlice({
     },
     updateAddModalVisible(state, action: PayloadAction<boolean>) {
       state.addModalVisible = action.payload;
+    },
+    updateNewMsgMap(state, action: PayloadAction<{ server: string; hasNewMsg: boolean }>) {
+      const { server, hasNewMsg } = action.payload;
+      state.newMsgMap[server] = hasNewMsg;
     }
   }
 });
 
-export const { initializeServers, addServer, removeServer, switchServer, updateAddModalVisible } =
-  dataSlice.actions;
+export const {
+  initializeServers,
+  updateNewMsgMap,
+  addServer,
+  removeServer,
+  switchServer,
+  updateAddModalVisible
+} = dataSlice.actions;
 export default dataSlice.reducer;

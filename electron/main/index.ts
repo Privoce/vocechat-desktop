@@ -1,5 +1,9 @@
 import { release } from "node:os";
 import { join } from "node:path";
+// import installExtension, {
+//   REDUX_DEVTOOLS,
+//   REACT_DEVELOPER_TOOLS
+// } from "electron-devtools-installer";
 // import NodeURL from "node:url";
 import { app, BrowserWindow, desktopCapturer, ipcMain, Menu, shell, Tray } from "electron";
 import { VocechatServer } from "@/types/common";
@@ -78,6 +82,9 @@ async function createWindow() {
 
     win.show();
   });
+  win.on("show", function () {
+    removeNewMsgTrayTip();
+  });
   if (url) {
     // electron-vite-vue#298
     win.webContents.loadURL(url);
@@ -95,11 +102,23 @@ async function createWindow() {
     if (url.startsWith("http")) shell.openExternal(url);
     return { action: "deny" };
   });
-
+  // win.setIcon("");
+  app.dock.setBadge("9");
   // Apply electron-updater
   // update(win);
 }
-
+const setNewMsgTrayTip = () => {
+  if (win.isMinimized() || !win.isVisible()) {
+    tray.setTitle("[NEW]", {
+      fontType: "monospaced"
+    });
+    tray.setImage(join(process.env.PUBLIC, "tray.with.dot.png"));
+  }
+};
+const removeNewMsgTrayTip = () => {
+  tray.setTitle("");
+  tray.setImage(join(process.env.PUBLIC, "tray.png"));
+};
 app.whenReady().then(() => {
   console.log("event:app-ready");
   createWindow();
@@ -156,6 +175,17 @@ app.whenReady().then(() => {
     tray.popUpContextMenu(contextMenu);
   });
   tray.setToolTip("VoceChat");
+
+  // // install extension
+  // if (process.env.NODE_ENV === "development") {
+  //   installExtension([REACT_DEVELOPER_TOOLS, REDUX_DEVTOOLS], {
+  //     loadExtensionOptions: {
+  //       allowFileAccess: true
+  //     }
+  //   })
+  //     .then((name) => console.log(`Added Extension:  ${name}`))
+  //     .catch((err) => console.log("An error occurred: ", err));
+  // }
 });
 app.on("before-quit", (evt) => {
   console.log("event:before-quit");
@@ -200,6 +230,11 @@ ipcMain.on("vocechat-logging", (evt, arg) => {
 
   logger.error(JSON.stringify(arg));
   // return true;
+});
+ipcMain.on("vocechat-new-msg", (evt) => {
+  console.log("handle:vocechat-new-msg");
+  // 如果是窗口隐藏状态，设置小红点提示
+  setNewMsgTrayTip();
 });
 // Event handler for asynchronous incoming messages
 // init redux store
