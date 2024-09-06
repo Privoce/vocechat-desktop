@@ -19,7 +19,7 @@ jobs:
       - name: Install Node.js, NPM and Yarn
         uses: actions/setup-node@v3
         with:
-          node-version: 18.x
+          node-version: 20.x
       - name: Prepare for app notarization(macOS only)
         if: startsWith(matrix.os, 'macos')
         # Import Apple API key for app notarization on macOS
