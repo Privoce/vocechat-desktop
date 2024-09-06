@@ -1,6 +1,6 @@
 {
   "name": "VoceChat",
-  "version": "0.8.1",
+  "version": "0.8.4",
   "main": "dist-electron/main/index.js",
   "description": "vocechat desktop version",
   "author": "Tristan <yanggc888@163.com>",
@@ -14,8 +14,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "build:local": "tsc && vite build && electron-builder",
-    "release": "electron-builder",
+    "build:local": "export CSC_IDENTITY_AUTO_DISCOVERY=false && tsc && vite build && electron-builder",
+    "release": "export CSC_IDENTITY_AUTO_DISCOVERY=false && electron-builder",
     "preview": "vite preview",
     "postinstall": "patch-package"
   },
@@ -66,6 +66,6 @@
     "vite-svg-loader": "^5.1.0"
   },
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=20.0.0"
   }
 }
