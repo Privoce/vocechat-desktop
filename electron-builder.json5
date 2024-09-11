@@ -8,21 +8,6 @@
     output: "release/${version}"
   },
   files: ["dist-electron", "dist"],
-  "afterSign": "electron-builder-notarize",
-  mac: {
-    target: [
-      {
-        target: 'default',
-        arch: ['arm64', 'x64']
-      },
-    ],
-    artifactName: "${productName}_${version}_${arch}.${ext}",
-    hardenedRuntime: true,
-    entitlements: "build/entitlements.mac.plist",
-    entitlementsInherit: "build/entitlements.mac.plist",
-    gatekeeperAssess: false,
-    category: "public.app-category.lifestyle"
-  },
   win: {
     target: [
       {
@@ -38,12 +23,25 @@
     allowToChangeInstallationDirectory: true,
     deleteAppDataOnUninstall: false
   },
-  "linux": {
-      "target": [
-        "AppImage",
-      ],
-      "category": "Social"
-    },
+  mac: {
+    target: [
+      {
+        target: "default",
+        arch: ["arm64", "x64"]
+      }
+    ],
+    artifactName: "${productName}_${version}_${arch}.${ext}",
+    hardenedRuntime: true,
+    entitlements: "build/entitlements.mac.plist",
+    entitlementsInherit: "build/entitlements.mac.plist",
+    gatekeeperAssess: false,
+    category: "public.app-category.lifestyle"
+  },
+
+  linux: {
+    target: ["AppImage"],
+    category: "Social"
+  },
   publish: {
     provider: "github",
     owner: "privoce",
