@@ -2,9 +2,8 @@ name: Build VoceChat App
 
 on:
   push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+    tags:
+      - "v*"
 
 jobs:
   build:
@@ -44,15 +43,3 @@ jobs:
         with:
           github_token: ${{ secrets.github_token }}
           release: ${{ startsWith(github.ref, 'refs/tags/v') }}
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: ${{ matrix.os }}-build
-          path: |
-            release/**/*.exe
-            release/**/*.dmg
-            release/**/*.AppImage
-            release/**/*.deb
-            release/**/*.rpm
-          if-no-files-found: error
