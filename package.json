@@ -81,13 +81,16 @@
       "target": [
         "dmg",
         "zip"
-      ]
+      ],
+      "identity": null
     },
     "win": {
       "target": [
         "nsis",
         "portable"
-      ]
+      ],
+      "certificateFile": null,
+      "certificatePassword": null
     },
     "linux": {
       "target": [
@@ -113,7 +116,9 @@
       "!**/{__pycache__,thumbs.db,.flowconfig,.idea,.vs,.nyc_output}",
       "!**/{appveyor.yml,.travis.yml,circle.yml}",
       "!**/{npm-debug.log,yarn.lock,.yarn-integrity,.yarn-metadata.json}"
-    ]
+    ],
+    "asar": true,
+    "afterSign": null
   },
   "config": {
     "electron_mirror": "https://npmmirror.com/mirrors/electron/",

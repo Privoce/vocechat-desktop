@@ -22,6 +22,11 @@ jobs:
         with:
           node-version: "20"
 
+      - name: Set Electron Mirror
+        run: |
+          echo "ELECTRON_MIRROR=https://npmmirror.com/mirrors/electron/" >> $GITHUB_ENV
+          echo "ELECTRON_BUILDER_BINARIES_MIRROR=https://npmmirror.com/mirrors/electron-builder-binaries/" >> $GITHUB_ENV
+
       - name: Install dependencies
         run: |
           npm install
