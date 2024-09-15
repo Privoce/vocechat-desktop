@@ -24,9 +24,9 @@ jobs:
 
       - name: Install dependencies
         run: |
-          npm ci
+          npm install
 
-      - name: Build/release VoceChat app
+      - name: Build/release Electron app
         uses: samuelmeuli/action-electron-builder@v1
         with:
           github_token: ${{ secrets.github_token }}
