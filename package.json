@@ -17,11 +17,11 @@
     "build:local": "export CSC_IDENTITY_AUTO_DISCOVERY=false && tsc && vite build && electron-builder",
     "release": "export CSC_IDENTITY_AUTO_DISCOVERY=false && electron-builder",
     "preview": "vite preview",
-    "postinstall": "patch-package",
     "build:all": "electron-builder build --mac --win --linux",
     "build:mac": "electron-builder build --mac",
     "build:win": "electron-builder build --win",
-    "build:linux": "electron-builder build --linux"
+    "build:linux": "electron-builder build --linux",
+    "postinstall": "patch-package && electron-builder install-app-deps"
   },
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.1",
