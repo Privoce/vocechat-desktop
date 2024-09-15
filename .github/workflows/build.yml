@@ -32,8 +32,8 @@ jobs:
           npm install
 
       - name: Install Rollup for Linux
-      if: matrix.os == 'ubuntu-latest'
-      run: npm install @rollup/rollup-linux-x64-gnu
+        if: matrix.os == 'ubuntu-latest'
+        run: npm install @rollup/rollup-linux-x64-gnu
 
       - name: Build/release Electron app
         uses: samuelmeuli/action-electron-builder@v1
