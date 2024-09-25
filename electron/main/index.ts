@@ -5,7 +5,16 @@ import { join } from "node:path";
 //   REACT_DEVELOPER_TOOLS
 // } from "electron-devtools-installer";
 // import NodeURL from "node:url";
-import { app, BrowserWindow, desktopCapturer, ipcMain, Menu, shell, Tray } from "electron";
+import {
+  app,
+  BrowserWindow,
+  desktopCapturer,
+  ipcMain,
+  Menu,
+  nativeImage,
+  shell,
+  Tray
+} from "electron";
 import { VocechatServer } from "@/types/common";
 import { readUserData, USER_DATA_PATH, USER_LOG_PATH, writeUserData } from "./user-data";
 import logger from "./logger";
@@ -113,11 +122,20 @@ const setNewMsgTrayTip = () => {
       fontType: "monospaced"
     });
     tray.setImage(join(process.env.PUBLIC, "tray.with.dot.png"));
+    if (process.platform == "win32") {
+      win.setOverlayIcon(
+        nativeImage.createFromPath(join(process.env.PUBLIC, "dot.png")),
+        "New Message"
+      );
+    }
   }
 };
 const removeNewMsgTrayTip = () => {
   tray.setTitle("");
   tray.setImage(join(process.env.PUBLIC, "tray.png"));
+  if (process.platform == "win32") {
+    win.setOverlayIcon(null, "New Message");
+  }
 };
 app.whenReady().then(() => {
   console.log("event:app-ready");
