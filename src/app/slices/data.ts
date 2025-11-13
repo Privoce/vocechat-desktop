@@ -5,7 +5,7 @@ export interface StoredData {
   servers: VocechatServer[];
   active: string;
   addModalVisible: boolean;
-  newMsgMap: Record<string, boolean>;
+  newMsgMap: Record<string, number>;
 }
 const initialState: StoredData = {
   servers: [],
@@ -49,7 +49,12 @@ const dataSlice = createSlice({
     },
     updateNewMsgMap(state, action: PayloadAction<{ server: string; hasNewMsg: boolean }>) {
       const { server, hasNewMsg } = action.payload;
-      state.newMsgMap[server] = hasNewMsg;
+      if (hasNewMsg) {
+        const currentCount = state.newMsgMap[server] ?? 0;
+        state.newMsgMap[server] = currentCount + 1;
+      } else {
+        state.newMsgMap[server] = 0;
+      }
     }
   }
 });

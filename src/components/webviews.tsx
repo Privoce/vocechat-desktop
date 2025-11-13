@@ -16,6 +16,11 @@ type Props = {
 const WebviewList = ({ servers, activeURL, handleReload, setReloading }: Props) => {
   const dispatch = useDispatch();
   useEffect(() => {
+    let windowFocused = true;
+    const handleWindowFocus = (_event: unknown, isFocused: boolean) => {
+      windowFocused = isFocused;
+    };
+    ipcRenderer.on("vocechat-window-focus", handleWindowFocus);
     const webviews = [...document.querySelectorAll("webview")] as WebviewTag[];
     webviews.forEach((webview) => {
       const server = webview.getAttribute("data-src") || "default";
@@ -52,11 +57,18 @@ const WebviewList = ({ servers, activeURL, handleReload, setReloading }: Props) 
         // 新消息
         if (level == 1 && message.includes("{{NEW_MSG}}")) {
           // 处理新消息
-          dispatch(updateNewMsgMap({ server, hasNewMsg: true }));
-          ipcRenderer.send("vocechat-new-msg");
+          const isActiveWebview = webview.dataset?.visible === "true";
+          const shouldMarkUnread = !isActiveWebview || !windowFocused;
+          if (shouldMarkUnread) {
+            dispatch(updateNewMsgMap({ server, hasNewMsg: true }));
+            ipcRenderer.send("vocechat-new-msg");
+          }
         }
       });
     });
+    return () => {
+      ipcRenderer.removeListener("vocechat-window-focus", handleWindowFocus);
+    };
   }, []);
 
   return servers.map((server) => {

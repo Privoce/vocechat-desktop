@@ -1,3 +1,4 @@
+import { Buffer } from "node:buffer";
 import { release } from "node:os";
 import { join } from "node:path";
 // import installExtension, {
@@ -47,6 +48,7 @@ if (!app.requestSingleInstanceLock()) {
 let win: BrowserWindow;
 let winAbout: BrowserWindow;
 let tray: Tray;
+let unreadCount = 0;
 let triggerByQuit = false;
 // Here, you can also use other preload
 const preload = join(__dirname, "../preload/index.js");
@@ -92,7 +94,25 @@ async function createWindow() {
     win.show();
   });
   win.on("show", function () {
-    removeNewMsgTrayTip();
+    updateUnreadIndicators(unreadCount);
+    if (win?.webContents) {
+      win.webContents.send("vocechat-window-focus", true);
+    }
+  });
+  win.on("focus", () => {
+    if (win?.webContents) {
+      win.webContents.send("vocechat-window-focus", true);
+    }
+  });
+  win.on("blur", () => {
+    if (win?.webContents) {
+      win.webContents.send("vocechat-window-focus", false);
+    }
+  });
+  win.on("hide", () => {
+    if (win?.webContents) {
+      win.webContents.send("vocechat-window-focus", false);
+    }
   });
   if (url) {
     // electron-vite-vue#298
@@ -112,29 +132,52 @@ async function createWindow() {
     return { action: "deny" };
   });
   // win.setIcon("");
-  app.dock.setBadge("9");
+  //app.dock.setBadge("9");
   // Apply electron-updater
   // update(win);
 }
-const setNewMsgTrayTip = () => {
-  if (win.isMinimized() || !win.isVisible()) {
-    tray.setTitle("[NEW]", {
+const formatUnreadCount = (count: number) => (count > 99 ? "99+" : `${count}`);
+const createOverlayIcon = (count: number) => {
+  const badgeText = formatUnreadCount(count);
+  const size = 128;
+  const radius = size / 2;
+  const fontSize = badgeText.length === 1 ? size * 0.65 : badgeText.length === 2 ? size * 0.58 : size * 0.5;
+  const svg = `<?xml version="1.0" encoding="UTF-8"?><svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><circle cx="${radius}" cy="${radius}" r="${radius}" fill="#e11d48"/><text x="50%" y="50%" dominant-baseline="central" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="${fontSize}" font-weight="700" fill="#ffffff">${badgeText}</text></svg>`;
+  return nativeImage.createFromDataURL(`data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")}`);
+};
+const resetTrayAppearance = () => {
+  if (!tray) return;
+  if (process.platform === "darwin") {
+    tray.setTitle("", {
       fontType: "monospaced"
     });
-    tray.setImage(join(process.env.PUBLIC, "tray.with.dot.png"));
-    if (process.platform == "win32") {
-      win.setOverlayIcon(
-        nativeImage.createFromPath(join(process.env.PUBLIC, "dot.png")),
-        "New Message"
-      );
+  }
+  tray.setImage(join(process.env.PUBLIC, "tray.png"));
+  tray.setToolTip("VoceChat");
+};
+const updateUnreadIndicators = (count: number) => {
+  unreadCount = count;
+  const displayCount = formatUnreadCount(count);
+  if (tray) {
+    if (count > 0) {
+      tray.setImage(join(process.env.PUBLIC, "tray.with.dot.png"));
+      if (process.platform === "darwin") {
+        tray.setTitle(displayCount, {
+          fontType: "monospaced"
+        });
+      }
+      tray.setToolTip(`VoceChat (${displayCount})`);
+    } else {
+      resetTrayAppearance();
     }
   }
-};
-const removeNewMsgTrayTip = () => {
-  tray.setTitle("");
-  tray.setImage(join(process.env.PUBLIC, "tray.png"));
-  if (process.platform == "win32") {
-    win.setOverlayIcon(null, "New Message");
+  if (process.platform === "darwin" && app.dock) {
+    app.dock.setBadge(count > 0 ? displayCount : "");
+  }
+  if (process.platform === "win32") {
+    win.setOverlayIcon(count > 0 ? createOverlayIcon(count) : null, count > 0 ? `New Messages: ${displayCount}` : "VoceChat");
+  } else {
+    app.setBadgeCount(count);
   }
 };
 app.whenReady().then(() => {
@@ -249,10 +292,11 @@ ipcMain.on("vocechat-logging", (evt, arg) => {
   logger.error(JSON.stringify(arg));
   // return true;
 });
-ipcMain.on("vocechat-new-msg", (evt) => {
+ipcMain.on("vocechat-new-msg", () => {
   console.log("handle:vocechat-new-msg");
-  // 如果是窗口隐藏状态，设置小红点提示
-  setNewMsgTrayTip();
+});
+ipcMain.on("vocechat-unread-count", (_event, totalUnread: number) => {
+  updateUnreadIndicators(totalUnread);
 });
 // Event handler for asynchronous incoming messages
 // init redux store

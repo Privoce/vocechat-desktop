@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import clsx from "clsx";
-import { updateAddModalVisible } from "@/app/slices/data";
+import { updateAddModalVisible, updateNewMsgMap } from "@/app/slices/data";
 import { useAppSelector } from "@/app/store";
 import IconAdd from "@/assets/icons/add.svg?react";
 import IconRefresh from "@/assets/icons/refresh.svg?react";
@@ -9,7 +9,7 @@ import IconDebug from "@/assets/icons/debug.svg?react";
 import ServerTip from "./server-tip";
 import AddServerModal from "./modal-add-server";
 import RemoveServerModal from "./modal-remove-server";
-import { WebviewTag } from "electron";
+import { WebviewTag, ipcRenderer } from "electron";
 import TitleBar from "./titlebar";
 import WebviewList from "./webviews";
 import ServerList from "./servers";
@@ -17,7 +17,7 @@ import { hideAll } from "tippy.js";
 const Layout = () => {
   const [removeServer, setRemoveServer] = useState<undefined | string>();
   const [reloading, setReloading] = useState(false);
-  const { servers, active, addModalVisible } = useAppSelector((store) => store.data);
+  const { servers, active, addModalVisible, newMsgMap } = useAppSelector((store) => store.data);
   const [menuVisibleMap, setMenuVisibleMap] = useState<Record<string, boolean>>({});
   const [reloadVisible, setReloadVisible] = useState(false);
 
@@ -27,6 +27,21 @@ const Layout = () => {
       handleAddServer();
     }
   }, [servers]);
+  useEffect(() => {
+    const handleWindowFocus = (_event: unknown, isFocused: boolean) => {
+      if (isFocused && active) {
+        dispatch(updateNewMsgMap({ server: active, hasNewMsg: false }));
+      }
+    };
+    ipcRenderer.on("vocechat-window-focus", handleWindowFocus);
+    return () => {
+      ipcRenderer.removeListener("vocechat-window-focus", handleWindowFocus);
+    };
+  }, [active, dispatch]);
+  useEffect(() => {
+    const totalUnread = Object.values(newMsgMap).reduce((sum, count) => sum + count, 0);
+    ipcRenderer.send("vocechat-unread-count", totalUnread);
+  }, [newMsgMap]);
   const showContextMenu = (_key: string) => {
     setMenuVisibleMap((prev) => {
       return {

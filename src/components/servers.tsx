@@ -34,17 +34,20 @@ const ServerList = ({
   const handleSwitch = (evt: MouseEvent<HTMLLIElement>) => {
     console.log("switch");
     const { url } = evt.currentTarget.dataset;
-    if (url == activeURL) return;
-    if (url) {
-      dispatch(switchServer(url));
+    if (!url) return;
+    if (url === activeURL) {
       dispatch(updateNewMsgMap({ server: url, hasNewMsg: false }));
+      return;
     }
+    dispatch(switchServer(url));
+    dispatch(updateNewMsgMap({ server: url, hasNewMsg: false }));
   };
   return (
     <ul className="flex w-full flex-col gap-2 py-1 text-lg text-gray-900 dark:text-gray-100">
       {servers.map((server) => {
         const { web_url, api_url, name } = server;
-        const hasNewMsg = newMsgMap[web_url] && web_url !== activeURL;
+        const unreadCount = newMsgMap[web_url] ?? 0;
+        const showUnreadBadge = unreadCount > 0;
         const items = [
           {
             text: "Remove Server",
@@ -99,8 +102,10 @@ const ServerList = ({
                     }/api/resource/organization/logo?t=${new Date().getTime()}`}
                     alt="logo"
                   />
-                  {hasNewMsg && (
-                    <div className="absolute -right-0 -top-0 size-2 rounded bg-red-600"></div>
+                  {showUnreadBadge && (
+                    <div className="absolute -right-2 -top-2 flex min-h-4 min-w-4 items-center justify-center rounded-full bg-red-600 px-1 text-[10px] font-semibold leading-4 text-white">
+                      {unreadCount > 99 ? "99+" : unreadCount}
+                    </div>
                   )}
                 </div>
               </ServerTip>
