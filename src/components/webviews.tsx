@@ -41,6 +41,25 @@ const WebviewList = ({ servers, activeURL, handleReload, setReloading }: Props) 
       webview.addEventListener("dom-ready", () => {
         const url = webview.dataset.src;
         console.log(`${url} dom-ready`);
+        // 劫持 webview 内的 Notification API，将 web 端的 PWA 通知转为 console.log
+        // Electron 的 webview 不支持 web Notification，所以拦截后通过 console-message 桥接到主进程
+        webview.executeJavaScript(`
+          (function() {
+            const OriginalNotification = window.Notification;
+            window.Notification = function(title, options) {
+              const detail = JSON.stringify({
+                channel: title || "",
+                sender: "",
+                content: (options && options.body) || ""
+              });
+              console.log("{{NEW_MSG}}" + detail);
+            };
+            window.Notification.permission = "granted";
+            window.Notification.requestPermission = function() {
+              return Promise.resolve("granted");
+            };
+          })();
+        `);
       });
       webview.addEventListener("console-message", (e) => {
         const { level, message, sourceId } = e;
@@ -49,11 +68,20 @@ const WebviewList = ({ servers, activeURL, handleReload, setReloading }: Props) 
           // console.log("Guest page logged a message:", message, sourceId);
           ipcRenderer.send("vocechat-logging", { level, message, sourceId });
         }
-        // 新消息
-        if (level == 1 && message.includes("{{NEW_MSG}}")) {
-          // 处理新消息
+        // 新消息: {{NEW_MSG}} 或 {{NEW_MSG}}{"channel":"xxx","sender":"xxx","content":"xxx"}
+        if (message.includes("{{NEW_MSG}}")) {
           dispatch(updateNewMsgMap({ server, hasNewMsg: true }));
-          ipcRenderer.send("vocechat-new-msg");
+          // 尝试解析消息详情
+          let msgDetail = {};
+          const jsonStr = message.replace("{{NEW_MSG}}", "").trim();
+          if (jsonStr) {
+            try {
+              msgDetail = JSON.parse(jsonStr);
+            } catch (err) {
+              // 解析失败，使用默认通知
+            }
+          }
+          ipcRenderer.send("vocechat-new-msg", msgDetail);
         }
       });
     });

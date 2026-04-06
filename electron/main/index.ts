@@ -12,6 +12,8 @@ import {
   ipcMain,
   Menu,
   nativeImage,
+  Notification,
+  session,
   shell,
   Tray
 } from "electron";
@@ -76,7 +78,9 @@ async function createWindow() {
       // Consider using contextBridge.exposeInMainWorld
       // Read more on https://www.electronjs.org/docs/latest/tutorial/context-isolation
       nodeIntegration: true,
-      contextIsolation: false
+      contextIsolation: false,
+      // 禁用后台节流，确保最小化/隐藏时 webview 仍能接收消息
+      backgroundThrottling: false
     }
   });
   win.on("close", (e) => {
@@ -139,6 +143,16 @@ const removeNewMsgTrayTip = () => {
 };
 app.whenReady().then(() => {
   console.log("event:app-ready");
+
+  // 自动授予 webview 中的通知权限，让 PWA 通知正常弹出为系统通知
+  session.defaultSession.setPermissionRequestHandler((webContents, permission, callback) => {
+    if (permission === "notifications") {
+      callback(true);
+    } else {
+      callback(true);
+    }
+  });
+
   createWindow();
   tray = new Tray(join(process.env.PUBLIC, "tray.png"));
   const contextMenu = Menu.buildFromTemplate([
@@ -249,10 +263,28 @@ ipcMain.on("vocechat-logging", (evt, arg) => {
   logger.error(JSON.stringify(arg));
   // return true;
 });
-ipcMain.on("vocechat-new-msg", (evt) => {
-  console.log("handle:vocechat-new-msg");
+ipcMain.on("vocechat-new-msg", (evt, msgDetail?: { channel?: string; sender?: string; content?: string }) => {
+  console.log("handle:vocechat-new-msg", msgDetail);
   // 如果是窗口隐藏状态，设置小红点提示
   setNewMsgTrayTip();
+  // 弹出系统通知（仅在窗口不可见或最小化时）
+  if (win.isMinimized() || !win.isVisible()) {
+    const title = msgDetail?.channel
+      ? `${msgDetail.channel} - ${msgDetail.sender || "New Message"}`
+      : "VoceChat";
+    const body = msgDetail?.content || "You have a new message";
+    const notification = new Notification({
+      title,
+      body,
+      icon: join(process.env.PUBLIC, "favicon.ico")
+    });
+    notification.on("click", () => {
+      if (win.isMinimized()) win.restore();
+      win.show();
+      win.focus();
+    });
+    notification.show();
+  }
 });
 // Event handler for asynchronous incoming messages
 // init redux store

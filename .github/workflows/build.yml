@@ -16,10 +16,16 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
       - name: Use Node.js
         uses: actions/setup-node@v3
         with:
           node-version: "20"
+          cache: "pnpm"
 
       - name: Set Electron Mirror
         run: |
@@ -27,19 +33,19 @@ jobs:
           echo "ELECTRON_BUILDER_BINARIES_MIRROR=https://npmmirror.com/mirrors/electron-builder-binaries/" >> $GITHUB_ENV
 
       - name: Install dependencies
-        run: |
-          npm install
+        run: pnpm install
 
       - name: Install Rollup for Linux
         if: matrix.os == 'ubuntu-latest'
-        run: npm install @rollup/rollup-linux-x64-gnu
+        run: pnpm add @rollup/rollup-linux-x64-gnu
 
       - name: Install Rollup for Windows
         if: matrix.os == 'windows-latest'
-        run: npm install @rollup/rollup-win32-x64-msvc
+        run: pnpm add @rollup/rollup-win32-x64-msvc
 
       - name: Build/release Electron app
         uses: samuelmeuli/action-electron-builder@v1
         with:
           github_token: ${{ secrets.github_token }}
           release: ${{ startsWith(github.ref, 'refs/tags/v') }}
+          package_manager: pnpm

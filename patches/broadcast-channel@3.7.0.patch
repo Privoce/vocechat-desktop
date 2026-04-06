@@ -1,0 +1,13 @@
+diff --git a/dist/es/method-chooser.js b/dist/es/method-chooser.js
+index 3e34b0093ba0e261b879a4ca539ac8a25fa626d1..3b33a2605b31be2808873a5dda9a2092770386b0 100644
+--- a/dist/es/method-chooser.js
++++ b/dist/es/method-chooser.js
+@@ -11,7 +11,7 @@ IndexeDbMethod, LocalstorageMethod];
+  * so it will not get bundled in browser-builds
+  */
+ 
+-if (isNode) {
++if (false) {
+   /**
+    * we use the non-transpiled code for nodejs
+    * because it runs faster

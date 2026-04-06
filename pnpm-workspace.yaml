@@ -1,0 +1,2 @@
+patchedDependencies:
+  broadcast-channel@3.7.0: patches/broadcast-channel@3.7.0.patch
