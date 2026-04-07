@@ -68,7 +68,7 @@ jobs:
         run: |
           pnpm exec tsc
           pnpm exec vite build
-          pnpm exec electron-builder build ${{ matrix.eb_flag }}
+          pnpm exec electron-builder build ${{ matrix.eb_flag }} --publish never
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: false
           ELECTRON_MIRROR: https://npmmirror.com/mirrors/electron/
