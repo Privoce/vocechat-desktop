@@ -50,6 +50,20 @@ let win: BrowserWindow;
 let winAbout: BrowserWindow;
 let tray: Tray;
 let triggerByQuit = false;
+let unreadCount = 0;
+
+// 动态生成带数字的红色圆形角标图标（用于 Windows 任务栏 overlay icon）
+const createBadgeIcon = (count: number): Electron.NativeImage => {
+  const text = count > 99 ? "99+" : count.toString();
+  const size = 16;
+  const fontSize = text.length > 2 ? 7 : text.length > 1 ? 9 : 11;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}">
+    <circle cx="8" cy="8" r="7" fill="#e53e3e"/>
+    <text x="8" y="12" text-anchor="middle" font-size="${fontSize}" font-family="Arial" font-weight="bold" fill="white">${text}</text>
+  </svg>`;
+  const dataUrl = `data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")}`;
+  return nativeImage.createFromDataURL(dataUrl);
+};
 // Here, you can also use other preload
 const preload = join(__dirname, "../preload/index.js");
 const url = process.env.VITE_DEV_SERVER_URL;
@@ -98,6 +112,10 @@ async function createWindow() {
   win.on("show", function () {
     removeNewMsgTrayTip();
   });
+  win.on("focus", function () {
+    unreadCount = 0;
+    removeNewMsgTrayTip();
+  });
   if (url) {
     // electron-vite-vue#298
     win.webContents.loadURL(url);
@@ -116,29 +134,36 @@ async function createWindow() {
     return { action: "deny" };
   });
   // win.setIcon("");
-  app.dock.setBadge("9");
   // Apply electron-updater
   // update(win);
 }
 const setNewMsgTrayTip = () => {
-  if (win.isMinimized() || !win.isVisible()) {
-    tray.setTitle("[NEW]", {
+  if (!win.isFocused()) {
+    unreadCount++;
+    tray.setTitle(`[${unreadCount}]`, {
       fontType: "monospaced"
     });
     tray.setImage(join(process.env.PUBLIC, "tray.with.dot.png"));
-    if (process.platform == "win32") {
+    if (process.platform === "win32") {
       win.setOverlayIcon(
-        nativeImage.createFromPath(join(process.env.PUBLIC, "dot.png")),
-        "New Message"
+        createBadgeIcon(unreadCount),
+        `${unreadCount} new messages`
       );
+    }
+    if (process.platform === "darwin") {
+      app.dock.setBadge(unreadCount.toString());
     }
   }
 };
 const removeNewMsgTrayTip = () => {
+  unreadCount = 0;
   tray.setTitle("");
   tray.setImage(join(process.env.PUBLIC, "tray.png"));
-  if (process.platform == "win32") {
-    win.setOverlayIcon(null, "New Message");
+  if (process.platform === "win32") {
+    win.setOverlayIcon(null, "");
+  }
+  if (process.platform === "darwin") {
+    app.dock.setBadge("");
   }
 };
 app.whenReady().then(() => {
@@ -267,8 +292,8 @@ ipcMain.on("vocechat-new-msg", (evt, msgDetail?: { channel?: string; sender?: st
   console.log("handle:vocechat-new-msg", msgDetail);
   // 如果是窗口隐藏状态，设置小红点提示
   setNewMsgTrayTip();
-  // 弹出系统通知（仅在窗口不可见或最小化时）
-  if (win.isMinimized() || !win.isVisible()) {
+  // 弹出系统通知（窗口失焦时）
+  if (!win.isFocused()) {
     const title = msgDetail?.channel
       ? `${msgDetail.channel} - ${msgDetail.sender || "New Message"}`
       : "VoceChat";

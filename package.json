@@ -1,6 +1,6 @@
 {
   "name": "VoceChat",
-  "version": "0.9.1",
+  "version": "0.9.2",
   "main": "dist-electron/main/index.js",
   "description": "vocechat desktop version",
   "author": "Tristan <yanggc888@163.com>",
@@ -17,10 +17,10 @@
     "build:local": "export CSC_IDENTITY_AUTO_DISCOVERY=false && tsc && vite build && electron-builder",
     "release": "export CSC_IDENTITY_AUTO_DISCOVERY=false && electron-builder",
     "preview": "vite preview",
-    "build:all": "electron-builder build --mac --win --linux",
-    "build:mac": "electron-builder build --mac",
-    "build:win": "electron-builder build --win",
-    "build:linux": "electron-builder build --linux",
+    "build:all": "tsc && vite build && electron-builder build --mac --win --linux",
+    "build:mac": "tsc && vite build && electron-builder build --mac",
+    "build:win": "tsc && vite build && electron-builder build --win",
+    "build:linux": "tsc && vite build && electron-builder build --linux",
     "postinstall": "electron-builder install-app-deps"
   },
   "dependencies": {
