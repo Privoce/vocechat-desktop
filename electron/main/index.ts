@@ -53,15 +53,28 @@ let triggerByQuit = false;
 let unreadCount = 0;
 
 // 动态生成带数字的红色圆形角标图标（用于 Windows 任务栏 overlay icon）
-const createBadgeIcon = (count: number): Electron.NativeImage => {
+// nativeImage.createFromDataURL 不支持 SVG，所以在主窗口渲染进程中用 canvas 绘制后返回 PNG base64
+const createBadgeIcon = async (count: number): Promise<Electron.NativeImage> => {
   const text = count > 99 ? "99+" : count.toString();
-  const size = 16;
   const fontSize = text.length > 2 ? 7 : text.length > 1 ? 9 : 11;
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}">
-    <circle cx="8" cy="8" r="7" fill="#e53e3e"/>
-    <text x="8" y="12" text-anchor="middle" font-size="${fontSize}" font-family="Arial" font-weight="bold" fill="white">${text}</text>
-  </svg>`;
-  const dataUrl = `data:image/svg+xml;base64,${Buffer.from(svg).toString("base64")}`;
+  const dataUrl = await win.webContents.executeJavaScript(`
+    (function() {
+      const canvas = document.createElement('canvas');
+      canvas.width = 16;
+      canvas.height = 16;
+      const ctx = canvas.getContext('2d');
+      ctx.beginPath();
+      ctx.arc(8, 8, 7, 0, Math.PI * 2);
+      ctx.fillStyle = '#e53e3e';
+      ctx.fill();
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold ${fontSize}px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('${text}', 8, 9);
+      return canvas.toDataURL('image/png');
+    })()
+  `);
   return nativeImage.createFromDataURL(dataUrl);
 };
 // Here, you can also use other preload
@@ -137,7 +150,7 @@ async function createWindow() {
   // Apply electron-updater
   // update(win);
 }
-const setNewMsgTrayTip = () => {
+const setNewMsgTrayTip = async () => {
   if (!win.isFocused()) {
     unreadCount++;
     tray.setTitle(`[${unreadCount}]`, {
@@ -145,10 +158,12 @@ const setNewMsgTrayTip = () => {
     });
     tray.setImage(join(process.env.PUBLIC, "tray.with.dot.png"));
     if (process.platform === "win32") {
-      win.setOverlayIcon(
-        createBadgeIcon(unreadCount),
-        `${unreadCount} new messages`
-      );
+      try {
+        const icon = await createBadgeIcon(unreadCount);
+        win.setOverlayIcon(icon, `${unreadCount} new messages`);
+      } catch (e) {
+        console.error("Failed to create badge icon", e);
+      }
     }
     if (process.platform === "darwin") {
       app.dock.setBadge(unreadCount.toString());

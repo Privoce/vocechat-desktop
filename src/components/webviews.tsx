@@ -17,32 +17,30 @@ const WebviewList = ({ servers, activeURL, handleReload, setReloading }: Props) 
   const dispatch = useDispatch();
   useEffect(() => {
     const webviews = [...document.querySelectorAll("webview")] as WebviewTag[];
+    const cleanups: (() => void)[] = [];
     webviews.forEach((webview) => {
       const server = webview.getAttribute("data-src") || "default";
-      webview.addEventListener("did-change-theme-color", (evt) => {
+      const onThemeColorChanged = (evt: Electron.DidChangeThemeColorEvent) => {
         console.log("theme color changed", evt.themeColor);
-        // 约定的主题色
         if (evt.themeColor == "#123456") {
           handleReload();
         }
-      });
-      webview.addEventListener("did-finish-load", () => {
+      };
+      const onDidFinishLoad = () => {
         if (webview.dataset?.visible == "true") {
           console.log("load finish reloading false", webview.src);
           setReloading(false);
         }
-      });
-      webview.addEventListener("did-fail-load", () => {
+      };
+      const onDidFailLoad = () => {
         if (webview.dataset?.visible == "true") {
           console.log("load fail reloading false", webview.src);
           setReloading(false);
         }
-      });
-      webview.addEventListener("dom-ready", () => {
+      };
+      const onDomReady = () => {
         const url = webview.dataset.src;
         console.log(`${url} dom-ready`);
-        // 劫持 webview 内的 Notification API，将 web 端的 PWA 通知转为 console.log
-        // Electron 的 webview 不支持 web Notification，所以拦截后通过 console-message 桥接到主进程
         webview.executeJavaScript(`
           (function() {
             const OriginalNotification = window.Notification;
@@ -60,18 +58,14 @@ const WebviewList = ({ servers, activeURL, handleReload, setReloading }: Props) 
             };
           })();
         `);
-      });
-      webview.addEventListener("console-message", (e) => {
+      };
+      const onConsoleMessage = (e: Electron.ConsoleMessageEvent) => {
         const { level, message, sourceId } = e;
         if (level == 3) {
-          //  error
-          // console.log("Guest page logged a message:", message, sourceId);
           ipcRenderer.send("vocechat-logging", { level, message, sourceId });
         }
-        // 新消息: {{NEW_MSG}} 或 {{NEW_MSG}}{"channel":"xxx","sender":"xxx","content":"xxx"}
         if (message.includes("{{NEW_MSG}}")) {
           dispatch(updateNewMsgMap({ server, hasNewMsg: true }));
-          // 尝试解析消息详情
           let msgDetail = {};
           const jsonStr = message.replace("{{NEW_MSG}}", "").trim();
           if (jsonStr) {
@@ -83,8 +77,26 @@ const WebviewList = ({ servers, activeURL, handleReload, setReloading }: Props) 
           }
           ipcRenderer.send("vocechat-new-msg", msgDetail);
         }
+      };
+
+      webview.addEventListener("did-change-theme-color", onThemeColorChanged);
+      webview.addEventListener("did-finish-load", onDidFinishLoad);
+      webview.addEventListener("did-fail-load", onDidFailLoad);
+      webview.addEventListener("dom-ready", onDomReady);
+      webview.addEventListener("console-message", onConsoleMessage);
+
+      cleanups.push(() => {
+        webview.removeEventListener("did-change-theme-color", onThemeColorChanged);
+        webview.removeEventListener("did-finish-load", onDidFinishLoad);
+        webview.removeEventListener("did-fail-load", onDidFailLoad);
+        webview.removeEventListener("dom-ready", onDomReady);
+        webview.removeEventListener("console-message", onConsoleMessage);
       });
     });
+
+    return () => {
+      cleanups.forEach((fn) => fn());
+    };
   }, []);
 
   return servers.map((server) => {
