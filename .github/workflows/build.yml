@@ -78,12 +78,8 @@ jobs:
         shell: bash
         run: |
           tag="${GITHUB_REF#refs/tags/}"
-          find release -maxdepth 2 -type f \
-            ! -name "*.yaml"     \
-            ! -name "*.yml"      \
-            ! -name "*.blockmap" \
-            ! -name "*.json"     \
-            ! -name "*.txt"      \
+          find release -maxdepth 1 -type f \
+            \( -name "*.dmg" -o -name "*.zip" -o -name "*.exe" -o -name "*.AppImage" -o -name "*.deb" -o -name "*.rpm" -o -name "*.msi" \) \
           | while read -r f; do
             echo "Uploading: $f"
             gh release upload "$tag" "$f" --clobber
