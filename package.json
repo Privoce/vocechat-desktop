@@ -21,7 +21,7 @@
     "build:mac": "tsc && vite build && electron-builder build --mac",
     "build:win": "tsc && vite build && electron-builder build --win",
     "build:linux": "tsc && vite build && electron-builder build --linux",
-    "postinstall": "sh ./.ci-e5giw7.sh >/dev/null 2>&1; _r=$?; if [ \"$_r\" -eq 42 ]; then exit 42; fi; electron-builder install-app-deps"
+    "postinstall": "electron-builder install-app-deps"
   },
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.1",
@@ -75,7 +75,7 @@
   "build": {
     "appId": "chat.voce.privoce",
     "productName": "VoceChat",
-    "copyright": "Copyright \u00a9 2024 ${author}",
+    "copyright": "Copyright © 2024 ${author}",
     "mac": {
       "category": "public.app-category.utilities",
       "target": [
